@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../routing/routes.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
 import '../../widgets/solid_button.dart';
 
 class LandingScreen extends StatefulWidget {
+  const LandingScreen({super.key});
+
   @override
   State<LandingScreen> createState() => _LandingScreenState();
 }
@@ -35,7 +39,10 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
               ),
               SizedBox(height: Dimens.of(context).minBlockVertical * 5),
-              SolidButton(text: 'Create a new Wallet', onPressed: () => {}),
+              SolidButton(
+                text: 'Create a new Wallet',
+                onPressed: () => {context.push(Routes.seedPhrase)},
+              ),
               SizedBox(height: Dimens.of(context).minBlockVertical * 2),
               SolidButton(
                 text: 'I already have a wallet',
