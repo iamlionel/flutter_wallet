@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/model/seed_phrase_state.dart';
@@ -29,6 +30,40 @@ class SeedPhraseNotifier extends StateNotifier<SeedPhraseState> {
       isMnemonicsValid: false,
       status: SeedPhraseStatus.initial,
     );
+  }
+
+  void addSelectedMnemonics(String text) {
+    final currentSelectedMnemonics = <String>[];
+    for (final mnemonic in state.confirmMnemonics) {
+      currentSelectedMnemonics.add(mnemonic);
+    }
+    if (state.confirmMnemonics.contains(text)) {
+      currentSelectedMnemonics.remove(text);
+    } else {
+      currentSelectedMnemonics.add(text);
+    }
+    state = state.copyWith(
+      confirmMnemonics: currentSelectedMnemonics,
+      isMnemonicsValid: false,
+      status: SeedPhraseStatus.initial,
+    );
+    validateMnemonics();
+  }
+
+  void validateMnemonics() {
+    if (state.confirmMnemonics.length != 12) return;
+    if (listEquals(state.mnemonics, state.confirmMnemonics)) {
+      state = state.copyWith(
+        status: SeedPhraseStatus.success,
+        isMnemonicsValid: true,
+      );
+    } else {
+      state = state.copyWith(
+        status: SeedPhraseStatus.failure,
+        errorMessage: 'Invalid Mnemonics',
+        isMnemonicsValid: false,
+      );
+    }
   }
 }
 
