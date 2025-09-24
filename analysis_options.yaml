@@ -1,0 +1,23 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    prefer_const_constructors: false
+    prefer_final_fields: false
+    use_key_in_widget_constructors: false
+    prefer_const_literals_to_create_immutables: false
+    prefer_const_constructors_in_immutables: false
+    avoid_print: false
+    # 强制使用相对路径导入同一包内的文件
+    prefer_relative_imports: true
+    # 其他相关规则
+    avoid_relative_lib_imports: true
+
+analyzer:
+  errors:
+    # 将相对路径警告提升为错误，强制修复
+    prefer_relative_imports: error
+    invalid_annotation_target: ignore
+
+  plugins:
+    - custom_lint
