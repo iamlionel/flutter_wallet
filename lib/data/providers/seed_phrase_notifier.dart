@@ -51,12 +51,6 @@ class SeedPhraseNotifier extends StateNotifier<SeedPhraseState> {
   }
 
   void validateMnemonics() {
-    // test
-    state = state.copyWith(
-      status: SeedPhraseStatus.success,
-      isMnemonicsValid: true,
-    );
-
     if (state.confirmMnemonics.length != 12) return;
     if (listEquals(state.mnemonics, state.confirmMnemonics)) {
       state = state.copyWith(

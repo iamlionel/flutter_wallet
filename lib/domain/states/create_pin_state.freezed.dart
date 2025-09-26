@@ -25,12 +25,12 @@ $CreatePinStateCopyWith<CreatePinState> get copyWith => _$CreatePinStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreatePinState&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.isValid, isValid) || other.isValid == isValid)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.wallet, wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreatePinState&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.isValid, isValid) || other.isValid == isValid)&&(identical(other.status, status) || other.status == status)&&(identical(other.wallet, wallet) || other.wallet == wallet));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,password,confirmPassword,isValid,status,const DeepCollectionEquality().hash(wallet));
+int get hashCode => Object.hash(runtimeType,password,confirmPassword,isValid,status,wallet);
 
 @override
 String toString() {
@@ -49,7 +49,7 @@ $Res call({
 });
 
 
-
+$WalletModelCopyWith<$Res> get wallet;
 
 }
 /// @nodoc
@@ -62,17 +62,26 @@ class _$CreatePinStateCopyWithImpl<$Res>
 
 /// Create a copy of CreatePinState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? password = null,Object? confirmPassword = null,Object? isValid = null,Object? status = null,Object? wallet = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? password = null,Object? confirmPassword = null,Object? isValid = null,Object? status = null,Object? wallet = null,}) {
   return _then(_self.copyWith(
 password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,confirmPassword: null == confirmPassword ? _self.confirmPassword : confirmPassword // ignore: cast_nullable_to_non_nullable
 as String,isValid: null == isValid ? _self.isValid : isValid // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as CreatePinStatus,wallet: freezed == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
+as CreatePinStatus,wallet: null == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
 as WalletModel,
   ));
 }
-
+/// Create a copy of CreatePinState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WalletModelCopyWith<$Res> get wallet {
+  
+  return $WalletModelCopyWith<$Res>(_self.wallet, (value) {
+    return _then(_self.copyWith(wallet: value));
+  });
+}
 }
 
 
@@ -229,12 +238,12 @@ _$CreatePinStateCopyWith<_CreatePinState> get copyWith => __$CreatePinStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreatePinState&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.isValid, isValid) || other.isValid == isValid)&&(identical(other.status, status) || other.status == status)&&const DeepCollectionEquality().equals(other.wallet, wallet));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreatePinState&&(identical(other.password, password) || other.password == password)&&(identical(other.confirmPassword, confirmPassword) || other.confirmPassword == confirmPassword)&&(identical(other.isValid, isValid) || other.isValid == isValid)&&(identical(other.status, status) || other.status == status)&&(identical(other.wallet, wallet) || other.wallet == wallet));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,password,confirmPassword,isValid,status,const DeepCollectionEquality().hash(wallet));
+int get hashCode => Object.hash(runtimeType,password,confirmPassword,isValid,status,wallet);
 
 @override
 String toString() {
@@ -253,7 +262,7 @@ $Res call({
 });
 
 
-
+@override $WalletModelCopyWith<$Res> get wallet;
 
 }
 /// @nodoc
@@ -266,18 +275,27 @@ class __$CreatePinStateCopyWithImpl<$Res>
 
 /// Create a copy of CreatePinState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? password = null,Object? confirmPassword = null,Object? isValid = null,Object? status = null,Object? wallet = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? password = null,Object? confirmPassword = null,Object? isValid = null,Object? status = null,Object? wallet = null,}) {
   return _then(_CreatePinState(
 password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String,confirmPassword: null == confirmPassword ? _self.confirmPassword : confirmPassword // ignore: cast_nullable_to_non_nullable
 as String,isValid: null == isValid ? _self.isValid : isValid // ignore: cast_nullable_to_non_nullable
 as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as CreatePinStatus,wallet: freezed == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
+as CreatePinStatus,wallet: null == wallet ? _self.wallet : wallet // ignore: cast_nullable_to_non_nullable
 as WalletModel,
   ));
 }
 
-
+/// Create a copy of CreatePinState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$WalletModelCopyWith<$Res> get wallet {
+  
+  return $WalletModelCopyWith<$Res>(_self.wallet, (value) {
+    return _then(_self.copyWith(wallet: value));
+  });
+}
 }
 
 // dart format on

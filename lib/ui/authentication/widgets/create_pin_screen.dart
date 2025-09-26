@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../data/providers/app_provider.dart';
 import '../../../data/providers/create_pin_provider.dart';
 import '../../../domain/states/create_pin_state.dart';
 import '../../../routing/routes.dart';
@@ -29,7 +30,7 @@ class _CreatePinState extends ConsumerState<CreatePinScreen> {
       if (next.status == CreatePinStatus.failure) {
         context.showErrorMessage('Oops an error occur, Try again');
       } else if (next.status == CreatePinStatus.success) {
-        //todo udpate model
+        ref.read(appProvider.notifier).updateWalletModel(next.wallet);
         context.push(Routes.home);
       }
     });

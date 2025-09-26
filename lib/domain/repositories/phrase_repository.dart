@@ -11,5 +11,9 @@ abstract class PhraseRepository {
 
   Future<void> saveData(WalletModel data, String password);
 
+  Future<WalletModel?> retrieveData(String password);
+
   String getMnemonics();
+
+  Stream<AuthStatus> get status;
 }

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../ui/authentication/widgets/create_pin_screen.dart';
 import '../ui/home/widgets/home_screen.dart';
-import '../ui/landing/widgets/landing_screen.dart';
+import '../ui/landing/widgets/splash_screen.dart';
 import '../ui/seed_phrase/widgets/confirm_phrase_screen.dart';
 import '../ui/seed_phrase/widgets/seed_phrase_screen.dart';
 import 'routes.dart';
@@ -14,7 +14,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.landing,
-        builder: (context, state) => const LandingScreen(),
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: Routes.seedPhrase,

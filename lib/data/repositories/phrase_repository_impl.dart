@@ -10,11 +10,25 @@ import '../../domain/models/wallet_model.dart';
 import '../../domain/repositories/phrase_repository.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
+class IncorrectPasswordException implements Exception {}
+
 class PhraseRepositoryImpl extends PhraseRepository {
   PhraseRepositoryImpl({FlutterSecureStorage? storage})
     : _storage = storage ?? const FlutterSecureStorage();
 
   final FlutterSecureStorage _storage;
+
+  @override
+  Stream<AuthStatus> get status async* {
+    final data = await _storage.read(key: 'data');
+    final ivData = await _storage.read(key: 'iv');
+    final salt = await _storage.read(key: 'salt');
+    if (data != null && ivData != null && salt != null) {
+      yield AuthStatus.authenticated;
+    } else {
+      yield AuthStatus.unauthenticated;
+    }
+  }
 
   @override
   String getMnemonics() {
@@ -48,5 +62,27 @@ class PhraseRepositoryImpl extends PhraseRepository {
     await _storage.write(key: 'data', value: encrypted.base64);
     await _storage.write(key: 'iv', value: iv.base64);
     await _storage.write(key: 'salt', value: salt.base64);
+  }
+
+  @override
+  Future<WalletModel?> retrieveData(String password) async {
+    try {
+      final data = await _storage.read(key: 'data');
+      final iv = await _storage.read(key: 'iv');
+      final salt = await _storage.read(key: 'salt');
+      if (data == null || iv == null || salt == null) return null;
+      final secretKey = Key.fromUtf8(
+        password,
+      ).stretch(16, salt: IV.fromBase64(salt).bytes);
+      final encrypter = Encrypter(AES(secretKey, mode: AESMode.cbc));
+      final encrypted = encrypter.decrypt(
+        Encrypted.fromBase64(data),
+        iv: IV.fromBase64(iv),
+      );
+      final jsonData = jsonDecode(encrypted) as Map<String, dynamic>;
+      return WalletModel.fromJson(jsonData);
+    } catch (e) {
+      throw IncorrectPasswordException();
+    }
   }
 }
