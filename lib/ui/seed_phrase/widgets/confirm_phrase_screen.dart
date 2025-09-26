@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../data/providers/seed_phrase_provider.dart';
-import '../../../domain/model/seed_phrase_state.dart';
+import '../../../domain/states/seed_phrase_state.dart';
 import '../../../routing/routes.dart';
 import '../../core/themes/colors.dart';
 import '../../core/themes/dimens.dart';
@@ -126,7 +126,10 @@ class _ConfirmPhraseScreenState extends ConsumerState<ConfirmPhraseScreen> {
                   opacity: state.isMnemonicsValid ? 1.0 : 0.5,
                   child: SolidButton(
                     text: 'Continue',
-                    onPressed: () => context.push(Routes.createPin),
+                    onPressed: () => context.push(
+                      Routes.createPin,
+                      extra: state.mnemonics.join(' '),
+                    ),
                   ),
                 ),
               ),
