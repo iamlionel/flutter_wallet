@@ -44,7 +44,7 @@ class PhraseRepositoryImpl extends PhraseRepository {
   }
 
   @override
-  Future<EthereumAddress> generatePublickey(String privateKeyHex) async {
+  Future<EthereumAddress> generatePublicKey(String privateKeyHex) async {
     final privateKey = EthPrivateKey.fromHex(privateKeyHex);
     final publicAddress = await privateKey.extractAddress();
     return publicAddress;

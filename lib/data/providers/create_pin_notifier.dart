@@ -14,7 +14,7 @@ class CreatePinNotifier extends StateNotifier<CreatePinState> {
   Future<void> getUserKeys(String mnemonics, String password) async {
     try {
       final privateKey = await _phraseRepository.generatePrivatekey(mnemonics);
-      final publicKey = await _phraseRepository.generatePublickey(privateKey);
+      final publicKey = await _phraseRepository.generatePublicKey(privateKey);
       final data = WalletModel(
         privateKey: privateKey,
         publicKey: publicKey.toString(),

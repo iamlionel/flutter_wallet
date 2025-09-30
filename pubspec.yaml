@@ -28,6 +28,8 @@ dependencies:
   web3dart: ^2.7.3
   encrypt: ^5.0.3
   flutter_secure_storage: ^9.2.2
+  flutter_dotenv: ^6.0.0
+  modal_bottom_sheet: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -43,3 +45,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/abi/
+    - assets/.env
+    - assets/.env.dev
