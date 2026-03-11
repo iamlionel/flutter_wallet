@@ -14,7 +14,7 @@ import 'contract_provider.dart';
 
 // ── Chain Adapters ───────────────────────────────────────────────────────────
 final chainAdaptersProvider = FutureProvider<List<ChainAdapter>>((ref) async {
-  final contractRepo = await ref.watch(contractRepositoryProvider.future);
+  final contractRepo = await ref.read(contractRepositoryProvider.future);
   return [
     EthChainAdapter(contractRepo),
     BtcChainAdapter(),
@@ -28,7 +28,7 @@ final chainPricesProvider = FutureProvider<Map<ChainId, double>>((ref) async {
     final uri = Uri.parse(
       'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,bitcoin,solana&vs_currencies=usd',
     );
-    final response = await http.get(uri);
+    final response = await http.get(uri).timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) return {};
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     return {
@@ -46,8 +46,11 @@ final nativeBalanceProvider = FutureProvider.family<
   double,
   ({ChainId chainId, String address})
 >((ref, params) async {
-  final adapters = await ref.watch(chainAdaptersProvider.future);
-  final adapter = adapters.firstWhere((a) => a.chainId == params.chainId);
+  final adapters = await ref.read(chainAdaptersProvider.future);
+  final adapter = adapters.firstWhere(
+    (a) => a.chainId == params.chainId,
+    orElse: () => throw StateError('No adapter for chain ${params.chainId}'),
+  );
   return adapter.getNativeBalance(params.address);
 });
 
@@ -55,7 +58,7 @@ final nativeBalanceProvider = FutureProvider.family<
 final totalUsdBalanceProvider = FutureProvider<double>((ref) async {
   try {
     final wallet = ref.watch(appProvider).wallet;
-    final prices = await ref.watch(chainPricesProvider.future);
+    final prices = await ref.read(chainPricesProvider.future);
 
     final futures = ChainId.values.map((chainId) async {
       final address = wallet.addresses[chainId.key] ?? '';
@@ -63,7 +66,7 @@ final totalUsdBalanceProvider = FutureProvider<double>((ref) async {
       final price = prices[chainId] ?? 0.0;
       if (price == 0.0) return 0.0;
       try {
-        final balance = await ref.watch(
+        final balance = await ref.read(
           nativeBalanceProvider((chainId: chainId, address: address)).future,
         );
         return balance * price;
