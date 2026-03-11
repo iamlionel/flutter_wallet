@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/models/token_asset_model.dart';
 import '../../domain/repositories/contract_repository.dart';
 import '../../domain/states/add_token_state.dart';
 
@@ -14,6 +15,15 @@ class AddTokenNotifier extends StateNotifier<AddTokenState> {
     state = state.copyWith(contractAddress: address);
 
     _getContractDetails();
+  }
+
+  TokenAssetModel? get currentToken {
+    if (state.tokenSymbol.isEmpty) return null;
+    return TokenAssetModel(
+      contractAddress: state.contractAddress,
+      symbol: state.tokenSymbol,
+      decimal: state.tokenDecimal,
+    );
   }
 
   Future<void> _getContractDetails() async {

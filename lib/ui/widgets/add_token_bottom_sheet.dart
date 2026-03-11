@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers/add_token_provider.dart';
+import '../../data/providers/wallet_data_provider.dart';
 import '../../domain/states/add_token_state.dart';
 import '../core/themes/colors.dart';
 import '../core/themes/font_weights.dart';
@@ -117,7 +118,13 @@ class _AddTokenBottomSheetState extends ConsumerState<AddTokenBottomSheet> {
             SolidButton(
               text: 'Add Token',
               gradient: AppColors.primaryGradient,
-              onPressed: () {},
+              onPressed: () {
+                final token = ref.read(addTokenProvider.notifier).currentToken;
+                if (token != null) {
+                  ref.read(savedTokensProvider.notifier).addToken(token);
+                  Navigator.of(context).pop();
+                }
+              },
             ),
             SizedBox(height: context.minBlockVertical * 4),
           ],
