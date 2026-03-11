@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../domain/models/token_asset_model.dart';
+import '../../domain/models/transaction_model.dart';
 import 'contract_provider.dart';
 
 const _tokensKey = 'saved_tokens';
@@ -67,5 +68,21 @@ final tokenBalanceProvider =
       args.publicKey,
     );
     return args.token.copyWith(balance: balance);
+  },
+);
+
+// ── Transactions ────────────────────────────────────────────────────────────
+final transactionsProvider =
+    FutureProvider.family<List<TransactionModel>, String>(
+  (ref, address) async {
+    if (address.isEmpty) return [];
+    final repo = await ref.watch(contractRepositoryProvider.future);
+    final results = await Future.wait([
+      repo.getEthTransactions(address),
+      repo.getErc20Transactions(address),
+    ]);
+    final all = [...results[0], ...results[1]];
+    all.sort((a, b) => int.parse(b.timeStamp).compareTo(int.parse(a.timeStamp)));
+    return all.take(20).toList();
   },
 );
