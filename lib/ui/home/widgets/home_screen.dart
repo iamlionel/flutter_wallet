@@ -4,6 +4,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../data/providers/app_provider.dart';
 import '../../../data/providers/contract_provider.dart';
+import '../../../data/providers/wallet_data_provider.dart';
+import 'package:web3dart/web3dart.dart';
 import '../../core/themes/colors.dart';
 import '../../widgets/add_token_bottom_sheet.dart';
 import '../../widgets/send_bottom_sheet.dart';
@@ -38,6 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final ethBalanceAsync = ref.watch(
       ethBalanceProvider(app.wallet.publicKey ?? ''),
     );
+    final ethUsdPriceAsync = ref.watch(ethUsdPriceProvider);
 
     return Scaffold(
       // ── Scaffold handles SafeArea / status bar automatically ─────────────
@@ -54,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: Column(
           children: [
             // ── Balance ────────────────────────────────────────────────────
-            _buildBalanceSection(context, ethBalanceAsync),
+            _buildBalanceSection(context, ethBalanceAsync, ethUsdPriceAsync),
 
             // ── Quick Actions ──────────────────────────────────────────────
             _buildQuickActions(context),
@@ -193,9 +196,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   // ── Balance Section ─────────────────────────────────────────────────────────
   Widget _buildBalanceSection(
     BuildContext context,
-    AsyncValue ethBalanceAsync,
+    AsyncValue<EtherAmount?> ethBalanceAsync,
+    AsyncValue<double> ethUsdPriceAsync,
   ) {
     final theme = Theme.of(context);
+
+    double ethAmount = 0.0;
+    double usdPrice = 0.0;
+
+    ethBalanceAsync.whenData((balance) {
+      if (balance != null) {
+        ethAmount = balance.getValueInUnit(EtherUnit.ether).toDouble();
+      }
+    });
+    ethUsdPriceAsync.whenData((price) => usdPrice = price);
+
+    final totalUsd = ethAmount * usdPrice;
+    final isLoading = ethBalanceAsync.isLoading || ethUsdPriceAsync.isLoading;
+
     return Container(
       color: const Color(0xFF0F1218),
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -206,29 +224,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             style: TextStyle(color: Colors.white54, fontSize: 13),
           ),
           const SizedBox(height: 4),
-          ethBalanceAsync.when(
-            data: (_) => Text(
-              '\$12,450.80',
-              style: theme.textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                fontSize: 36,
-                letterSpacing: -1,
-              ),
-            ),
-            error: (_, __) => const Text(
-              '\$0.00',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            loading: () => const SizedBox(
-              height: 44,
-              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-            ),
-          ),
+          isLoading
+              ? const SizedBox(
+                  height: 44,
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : Text(
+                  '\$${totalUsd.toStringAsFixed(2)}',
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    fontSize: 36,
+                    letterSpacing: -1,
+                  ),
+                ),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -236,9 +247,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               color: AppColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              '0.00 ETH',
-              style: TextStyle(
+            child: Text(
+              '${ethAmount.toStringAsFixed(4)} ETH',
+              style: const TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
