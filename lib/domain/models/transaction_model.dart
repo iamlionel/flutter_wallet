@@ -9,13 +9,13 @@ abstract class TransactionModel with _$TransactionModel {
     required String hash,
     required String from,
     required String to,
-    required String value,
-    required String timeStamp,
-    required String isError,
+    required String value,     // in wei (string)
+    required String timeStamp, // unix timestamp string
+    required String isError,   // "0" = success, "1" = failed
     @Default('') String tokenSymbol,
     @Default('') String tokenDecimal,
     @Default(false) bool isErc20,
-    @Default('eth') String chain,
+    @Default('eth') String chain,  // See ChainId.key: 'eth' | 'btc' | 'sol'
   }) = _TransactionModel;
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) =>
