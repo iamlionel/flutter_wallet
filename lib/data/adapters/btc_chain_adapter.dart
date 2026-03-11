@@ -49,8 +49,8 @@ class BtcChainAdapter implements ChainAdapter {
       if (response.statusCode != 200) return 0.0;
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       final chainStats = json['chain_stats'] as Map<String, dynamic>;
-      final funded = chainStats['funded_txo_sum'] as int;
-      final spent = chainStats['spent_txo_sum'] as int;
+      final funded = (chainStats['funded_txo_sum'] as num).toInt();
+      final spent = (chainStats['spent_txo_sum'] as num).toInt();
       return (funded - spent) / 1e8;
     } catch (_) {
       return 0.0;
