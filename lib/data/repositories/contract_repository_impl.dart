@@ -56,6 +56,9 @@ class ContractRepositoryImpl extends ContractRepository {
   }
 
   @override
+  Future<EtherAmount> getEthBalanceOnce(String address) => _getEth(address);
+
+  @override
   Stream<EtherAmount> getEthBalance(String publicKey) async* {
     yield* Stream<Future<EtherAmount>>.periodic(
       const Duration(seconds: 5),

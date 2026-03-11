@@ -14,6 +14,8 @@ abstract class ContractRepository {
 
   Stream<EtherAmount> getEthBalance(String publicKey);
 
+  Future<EtherAmount> getEthBalanceOnce(String address);
+
   Future<double> getEthUsdPrice();
 
   Future<List<TransactionModel>> getEthTransactions(String address);

@@ -6,12 +6,12 @@ import 'package:web3dart/web3dart.dart';
 import '../../domain/models/chain_id.dart';
 import '../../domain/models/transaction_model.dart';
 import '../../domain/repositories/chain_adapter.dart';
-import '../repositories/contract_repository_impl.dart';
+import '../../domain/repositories/contract_repository.dart';
 
 class EthChainAdapter implements ChainAdapter {
   EthChainAdapter(this._contractRepo);
 
-  final ContractRepositoryImpl _contractRepo;
+  final ContractRepository _contractRepo;
 
   @override
   ChainId get chainId => ChainId.ethereum;
@@ -30,18 +30,18 @@ class EthChainAdapter implements ChainAdapter {
     // BIP44 ETH path: m/44'/60'/0'/0/0 (secp256k1 via bip32)
     final root = bip32.BIP32.fromSeed(seedBytes);
     final child = root.derivePath("m/44'/60'/0'/0/0");
-    final credentials = EthPrivateKey(child.privateKey!);
+    final privateKeyBytes = child.privateKey;
+    if (privateKeyBytes == null) {
+      throw StateError('BIP32 derived node has no private key');
+    }
+    final credentials = EthPrivateKey(privateKeyBytes);
     return credentials.address.hex;
   }
 
   @override
   Future<double> getNativeBalance(String address) async {
-    // getEthBalance returns a periodic stream; take the first emission
-    final balance = await _contractRepo.getEthBalance(address).first;
-    final wei = balance.getInWei;
-    final ethWhole = wei ~/ BigInt.from(10).pow(18);
-    final ethFrac = wei % BigInt.from(10).pow(18);
-    return ethWhole.toDouble() + ethFrac.toDouble() / 1e18;
+    final balance = await _contractRepo.getEthBalanceOnce(address);
+    return balance.getValueInUnit(EtherUnit.ether);
   }
 
   @override
