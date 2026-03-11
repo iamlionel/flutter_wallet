@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:http/http.dart' as http;
 import '../../app/env_config.dart';
+import '../../domain/models/transaction_model.dart';
 import '../../domain/repositories/contract_repository.dart';
 import '../../domain/repositories/phrase_repository.dart';
 import 'phrase_repository_impl.dart';
@@ -20,6 +22,8 @@ class ContractRepositoryImpl extends ContractRepository {
   ContractAbi? _erc20Abi;
   final StreamController<EtherAmount> _ethBalanceController =
       StreamController<EtherAmount>();
+
+  static const _etherscanBase = 'https://api.etherscan.io/api';
 
   static Future<ContractRepositoryImpl> create({
     Web3Client? web3Client,
@@ -66,13 +70,13 @@ class ContractRepositoryImpl extends ContractRepository {
   ) async {
     final contract = DeployedContract(
       _erc20Abi!,
-      EthereumAddress.fromHex(publicKey),
+      EthereumAddress.fromHex(contractAddress),
     );
-    final ethAddress = EthPrivateKey.fromHex(publicKey);
+    final walletAddress = EthereumAddress.fromHex(publicKey);
     final response = await _web3client.call(
       contract: contract,
       function: contract.function('balanceOf'),
-      params: <dynamic>[ethAddress],
+      params: <dynamic>[walletAddress],
     );
     print(response);
     return response.first as String;
@@ -106,6 +110,57 @@ class ContractRepositoryImpl extends ContractRepository {
     );
     print(response);
     return response.first as String;
+  }
+
+  @override
+  Future<double> getEthUsdPrice() async {
+    final uri = Uri.parse(
+      '$_etherscanBase?module=stats&action=ethprice',
+    );
+    final response = await http.get(uri);
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    if (json['status'] == '1') {
+      final result = json['result'] as Map<String, dynamic>;
+      return double.parse(result['ethusd'] as String);
+    }
+    return 0.0;
+  }
+
+  @override
+  Future<List<TransactionModel>> getEthTransactions(String address) async {
+    final uri = Uri.parse(
+      '$_etherscanBase?module=account&action=txlist'
+      '&address=$address&startblock=0&endblock=99999999'
+      '&page=1&offset=20&sort=desc',
+    );
+    final response = await http.get(uri);
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    if (json['status'] == '1') {
+      final results = json['result'] as List<dynamic>;
+      return results
+          .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
+  }
+
+  @override
+  Future<List<TransactionModel>> getErc20Transactions(String address) async {
+    final uri = Uri.parse(
+      '$_etherscanBase?module=account&action=tokentx'
+      '&address=$address&startblock=0&endblock=99999999'
+      '&page=1&offset=20&sort=desc',
+    );
+    final response = await http.get(uri);
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    if (json['status'] == '1') {
+      final results = json['result'] as List<dynamic>;
+      return results
+          .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)
+              .copyWith(isErc20: true))
+          .toList();
+    }
+    return [];
   }
 
   @override

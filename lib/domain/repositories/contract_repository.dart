@@ -1,4 +1,5 @@
 import 'package:web3dart/web3dart.dart';
+import '../models/transaction_model.dart';
 
 abstract class ContractRepository {
   Future<void> initialize();
@@ -12,6 +13,12 @@ abstract class ContractRepository {
   Future<List> getTransactions(String contractAddress);
 
   Stream<EtherAmount> getEthBalance(String publicKey);
+
+  Future<double> getEthUsdPrice();
+
+  Future<List<TransactionModel>> getEthTransactions(String address);
+
+  Future<List<TransactionModel>> getErc20Transactions(String address);
 
   Future<String> sendEth({
     required String privateKey,
