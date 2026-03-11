@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:bech32/bech32.dart';
 import 'package:bip32/bip32.dart' as bip32;
+import 'package:bip39/bip39.dart' as bip39;
 import 'package:bs58/bs58.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:ed25519_hd_key/ed25519_hd_key.dart';
@@ -12,9 +14,9 @@ import 'package:pinenacl/ed25519.dart';
 import 'package:pointycastle/digests/ripemd160.dart';
 import 'package:web3dart/web3dart.dart';
 
+import '../../domain/models/chain_id.dart';
 import '../../domain/models/wallet_model.dart';
 import '../../domain/repositories/phrase_repository.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 class IncorrectPasswordException implements Exception {}
 
@@ -58,13 +60,17 @@ class PhraseRepositoryImpl extends PhraseRepository {
 
   @override
   Future<WalletModel> deriveAllAddresses(String mnemonics) async {
+    if (!bip39.validateMnemonic(mnemonics)) {
+      throw ArgumentError('Invalid mnemonic phrase');
+    }
+
     final seedBytes = bip39.mnemonicToSeed(mnemonics);
 
     // ── ETH (secp256k1, m/44'/60'/0'/0/0) ───────────────────────────────────
     final root = bip32.BIP32.fromSeed(seedBytes);
     final ethChild = root.derivePath("m/44'/60'/0'/0/0");
     final ethPrivKey = HEX.encode(ethChild.privateKey!);
-    final ethCredentials = EthPrivateKey.fromHex(ethPrivKey);
+    final ethCredentials = EthPrivateKey(ethChild.privateKey!);
     final ethAddress = ethCredentials.address.hex;
 
     // ── BTC (secp256k1, m/84'/0'/0'/0/0, P2WPKH bech32) ─────────────────────
@@ -91,9 +97,9 @@ class PhraseRepositoryImpl extends PhraseRepository {
       privateKey: ethPrivKey,
       publicKey: ethAddress,
       addresses: {
-        'eth': ethAddress,
-        'btc': btcAddress,
-        'sol': solAddress,
+        ChainId.ethereum.key: ethAddress,
+        ChainId.bitcoin.key: btcAddress,
+        ChainId.solana.key: solAddress,
       },
     );
   }
@@ -104,7 +110,7 @@ class PhraseRepositoryImpl extends PhraseRepository {
     final result = <int>[];
     final maxv = (1 << to) - 1;
     for (final value in data) {
-      acc = ((acc << from) | value) & 0xFFFF;
+      acc = (acc << from) | value;
       bits += from;
       while (bits >= to) {
         bits -= to;
