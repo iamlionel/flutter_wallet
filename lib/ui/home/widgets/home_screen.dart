@@ -442,32 +442,145 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   // ── Activity Tab ────────────────────────────────────────────────────────────
   Widget _buildActivityTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.history_rounded,
-            size: 56,
-            color: Colors.white.withValues(alpha: 0.12),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            'No recent activity',
-            style: TextStyle(
-              color: Colors.white38,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Your transactions will appear here',
-            style: TextStyle(color: Colors.white24, fontSize: 12),
-          ),
-        ],
+    final app = ref.watch(appProvider);
+    final publicKey = app.wallet.publicKey ?? '';
+    final txAsync = ref.watch(transactionsProvider(publicKey));
+
+    return txAsync.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(strokeWidth: 2),
       ),
+      error: (e, _) => const Center(
+        child: Text(
+          'Failed to load transactions',
+          style: TextStyle(color: Colors.white38),
+        ),
+      ),
+      data: (txList) {
+        if (txList.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.history_rounded,
+                  size: 56,
+                  color: Colors.white.withValues(alpha: 0.12),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'No recent activity',
+                  style: TextStyle(
+                    color: Colors.white38,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Your transactions will appear here',
+                  style: TextStyle(color: Colors.white24, fontSize: 12),
+                ),
+              ],
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+          itemCount: txList.length,
+          itemBuilder: (context, index) {
+            final tx = txList[index];
+            final isSend = tx.from.toLowerCase() == publicKey.toLowerCase();
+            final isSuccess = tx.isError == '0';
+            final color = isSuccess
+                ? (isSend ? AppColors.warning : AppColors.success)
+                : Colors.red;
+            final icon = isSend
+                ? Icons.arrow_upward_rounded
+                : Icons.arrow_downward_rounded;
+            final label = tx.isErc20
+                ? '${isSend ? 'Send' : 'Receive'} ${tx.tokenSymbol}'
+                : (isSend ? 'Send ETH' : 'Receive ETH');
+            final amount = tx.isErc20
+                ? _formatTokenBalance(tx.value, tx.tokenDecimal)
+                : _weiToEth(tx.value);
+            final dt = DateTime.fromMillisecondsSinceEpoch(
+              int.parse(tx.timeStamp) * 1000,
+            );
+            final dateStr =
+                '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              ),
+              child: ListTile(
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                leading: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                title: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                subtitle: Text(
+                  '${_shortHash(tx.hash)} · $dateStr',
+                  style: const TextStyle(color: Colors.white38, fontSize: 11),
+                ),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${isSend ? '-' : '+'}$amount',
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (!isSuccess)
+                      const Text(
+                        'Failed',
+                        style: TextStyle(color: Colors.red, fontSize: 11),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
+  }
+
+  String _weiToEth(String wei) {
+    try {
+      final value = BigInt.parse(wei);
+      final eth = value / BigInt.from(10).pow(18);
+      return eth.toStringAsFixed(4);
+    } catch (_) {
+      return '0';
+    }
+  }
+
+  String _shortHash(String hash) {
+    if (hash.length < 12) return hash;
+    return '${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}';
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
