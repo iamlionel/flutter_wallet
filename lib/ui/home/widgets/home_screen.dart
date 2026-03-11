@@ -89,7 +89,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [_buildAssetsTab(), _buildActivityTab()],
+                children: [_buildAssetsTab(ethBalanceAsync), _buildActivityTab()],
               ),
             ),
           ],
@@ -316,10 +316,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   // ── Assets Tab ──────────────────────────────────────────────────────────────
-  Widget _buildAssetsTab() {
+  Widget _buildAssetsTab(AsyncValue<EtherAmount?> ethBalanceAsync) {
     final app = ref.watch(appProvider);
     final publicKey = app.wallet.publicKey ?? '';
-    final ethBalanceAsync = ref.watch(ethBalanceProvider(publicKey));
     final savedTokens = ref.watch(savedTokensProvider);
 
     double ethAmount = 0.0;
