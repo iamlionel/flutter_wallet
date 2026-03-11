@@ -118,7 +118,7 @@ class _LandingScreenState extends State<LandingScreen> {
                         text: 'I already have a wallet',
                         color: Colors.white.withOpacity(0.3),
                         textColor: Colors.white,
-                        onPressed: () {},
+                        onPressed: () => context.push(Routes.importWallet),
                       ),
                     ],
                   ),

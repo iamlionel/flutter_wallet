@@ -124,6 +124,32 @@ class PhraseRepositoryImpl extends PhraseRepository {
   }
 
   @override
+  Future<void> saveMnemonics(String mnemonics, String password) async {
+    final salt = IV.fromSecureRandom(16);
+    final secretKey = Key.fromUtf8(password).stretch(16, salt: salt.bytes);
+    final iv = IV.fromSecureRandom(16);
+    final encrypter = Encrypter(AES(secretKey, mode: AESMode.cbc));
+    final encrypted = encrypter.encrypt(mnemonics, iv: iv);
+    await _storage.write(key: 'mnemonic_data', value: encrypted.base64);
+    await _storage.write(key: 'mnemonic_iv', value: iv.base64);
+    await _storage.write(key: 'mnemonic_salt', value: salt.base64);
+  }
+
+  Future<String?> _retrieveMnemonics(String password) async {
+    try {
+      final data = await _storage.read(key: 'mnemonic_data');
+      final iv = await _storage.read(key: 'mnemonic_iv');
+      final salt = await _storage.read(key: 'mnemonic_salt');
+      if (data == null || iv == null || salt == null) return null;
+      final secretKey = Key.fromUtf8(password).stretch(16, salt: IV.fromBase64(salt).bytes);
+      final encrypter = Encrypter(AES(secretKey, mode: AESMode.cbc));
+      return encrypter.decrypt(Encrypted.fromBase64(data), iv: IV.fromBase64(iv));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
   Future<void> saveData(WalletModel data, String password) async {
     final salt = IV.fromSecureRandom(16);
     final secretKey = Key.fromUtf8(password).stretch(16, salt: salt.bytes);
@@ -153,7 +179,17 @@ class PhraseRepositoryImpl extends PhraseRepository {
         iv: IV.fromBase64(iv),
       );
       final jsonData = jsonDecode(encrypted) as Map<String, dynamic>;
-      return WalletModel.fromJson(jsonData);
+      var wallet = WalletModel.fromJson(jsonData);
+      // Migration: populate addresses if missing (wallet created before multi-chain support)
+      if (wallet.addresses.isEmpty) {
+        final mnemonics = await _retrieveMnemonics(password);
+        if (mnemonics != null) {
+          final derived = await deriveAllAddresses(mnemonics);
+          wallet = wallet.copyWith(addresses: derived.addresses);
+          await saveData(wallet, password);
+        }
+      }
+      return wallet;
     } catch (e) {
       throw IncorrectPasswordException();
     }

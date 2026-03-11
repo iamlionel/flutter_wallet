@@ -22,6 +22,7 @@ class CreatePinNotifier extends StateNotifier<CreatePinState> {
         publicKey: publicKey.toString(),
         addresses: derived.addresses,
       );
+      await _phraseRepository.saveMnemonics(mnemonics, password);
       await _phraseRepository.saveData(data, password);
       state = state.copyWith(status: CreatePinStatus.success, wallet: data);
     } on Exception {

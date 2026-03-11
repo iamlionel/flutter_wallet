@@ -28,5 +28,7 @@ abstract class ContractRepository {
     required BigInt amount,
   });
 
+  Future<EtherAmount> getGasPrice();
+
   void dispose();
 }

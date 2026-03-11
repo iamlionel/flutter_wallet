@@ -207,6 +207,9 @@ class ContractRepositoryImpl extends ContractRepository {
   }
 
   @override
+  Future<EtherAmount> getGasPrice() => _web3client.getGasPrice();
+
+  @override
   void dispose() {
     _web3client.dispose();
     _ethBalanceController.close();

@@ -15,6 +15,8 @@ abstract class PhraseRepository {
 
   Future<void> saveData(WalletModel data, String password);
 
+  Future<void> saveMnemonics(String mnemonics, String password);
+
   Future<WalletModel?> retrieveData(String password);
 
   String getMnemonics();

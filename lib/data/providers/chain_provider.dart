@@ -76,7 +76,7 @@ final totalUsdBalanceProvider = FutureProvider<double>((ref) async {
     });
 
     final results = await Future.wait(futures);
-    return results.fold(0.0, (sum, v) => sum + v);
+    return results.fold<double>(0.0, (sum, v) => sum + v);
   } catch (_) {
     return 0.0;
   }

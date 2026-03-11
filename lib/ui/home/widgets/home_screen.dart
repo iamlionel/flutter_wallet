@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -8,6 +9,8 @@ import '../../../data/providers/wallet_data_provider.dart';
 import '../../../domain/models/chain_id.dart';
 import '../../core/themes/colors.dart';
 import '../../widgets/add_token_bottom_sheet.dart';
+import '../../widgets/more_bottom_sheet.dart';
+import '../../widgets/receive_bottom_sheet.dart';
 import '../../widgets/send_bottom_sheet.dart';
 import '../../widgets/swap_bottom_sheet.dart';
 
@@ -57,9 +60,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             _buildBalanceSection(context, totalUsdAsync),
 
             // ── Quick Actions ──────────────────────────────────────────────
-            _buildQuickActions(context),
-
-            const SizedBox(height: 8),
+            _buildQuickActions(context, app.wallet.addresses),
 
             // ── TabBar ─────────────────────────────────────────────────────
             Material(
@@ -107,7 +108,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       backgroundColor: const Color(0xFF0F1218),
       elevation: 0,
       centerTitle: true,
-      toolbarHeight: 64,
+      toolbarHeight: 56,
       leading: Padding(
         padding: const EdgeInsets.only(left: 16),
         child: Center(
@@ -122,7 +123,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
         ),
       ),
-      title: Column(
+      title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
@@ -133,46 +134,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 1),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF00FF88),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Text(
-                'Multi-Chain Wallet',
-                style: TextStyle(fontSize: 11, color: Colors.white60),
-              ),
-            ],
-          ),
-          const SizedBox(height: 1),
+          const SizedBox(width: 6),
           GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _shortHex(app.wallet.publicKey ?? '', head: 6, tail: 4),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.white38,
-                    fontFamily: 'RobotoMono',
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.copy_rounded,
-                  size: 12,
-                  color: AppColors.primary,
-                ),
-              ],
+            onTap: () => _showCopyAddressSheet(app.wallet.addresses),
+            child: const Icon(
+              Icons.copy_rounded,
+              size: 14,
+              color: AppColors.primary,
             ),
           ),
         ],
@@ -199,27 +167,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
     return Container(
       color: const Color(0xFF0F1218),
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      padding: const EdgeInsets.fromLTRB(24, 10, 24, 8),
       child: Column(
         children: [
           const Text(
             'Total Balance',
-            style: TextStyle(color: Colors.white54, fontSize: 13),
+            style: TextStyle(color: Colors.white54, fontSize: 12),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           totalUsdAsync.when(
             loading: () => const SizedBox(
-              height: 44,
-              child: Center(
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+              height: 36,
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
             ),
             error: (_, __) => Text(
               '\$0.00',
               style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
-                fontSize: 36,
+                fontSize: 32,
                 letterSpacing: -1,
               ),
             ),
@@ -228,24 +194,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
-                fontSize: 36,
+                fontSize: 32,
                 letterSpacing: -1,
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text(
-              'Multi-Chain Wallet',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
               ),
             ),
           ),
@@ -267,10 +217,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   // ── Quick Actions ───────────────────────────────────────────────────────────
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context, Map<String, String> addresses) {
     return Container(
       color: const Color(0xFF0F1218),
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -279,13 +229,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             'Send',
             () => _showSendTokenBottomSheet(context),
           ),
-          _buildActionBtn(Icons.arrow_downward_rounded, 'Receive', () {}),
+          _buildActionBtn(Icons.arrow_downward_rounded, 'Receive', () => _showReceiveBottomSheet(addresses)),
           _buildActionBtn(
             Icons.swap_horiz_rounded,
             'Swap',
             () => _showSwapTokenBottomSheet(context),
           ),
-          _buildActionBtn(Icons.grid_view_rounded, 'More', () {}),
+          _buildActionBtn(Icons.grid_view_rounded, 'More', () => _showMoreBottomSheet(context)),
         ],
       ),
     );
@@ -297,16 +247,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       child: Column(
         children: [
           Container(
-            width: 54,
-            height: 54,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.07),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 24),
+            child: Icon(icon, color: AppColors.primary, size: 22),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             label,
             style: const TextStyle(
@@ -349,7 +299,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     ];
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
       itemCount: chains.length + savedTokens.length,
       itemBuilder: (context, index) {
         if (index < chains.length) {
@@ -417,39 +367,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     bool isLoading = false,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         leading: Container(
-          width: 46,
-          height: 46,
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.token_rounded, color: color, size: 24),
+          alignment: Alignment.center,
+          child: Text(
+            _chainIcon(symbol),
+            style: TextStyle(
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         title: Text(
           name,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 15,
+            fontSize: 14,
           ),
         ),
         subtitle: Text(
           symbol,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: const TextStyle(color: Colors.white38, fontSize: 11),
         ),
         trailing: isLoading
             ? const SizedBox(
-                width: 20,
-                height: 20,
+                width: 18,
+                height: 18,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
             : Text(
@@ -457,11 +415,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
               ),
       ),
     );
+  }
+
+  String _chainIcon(String symbol) {
+    switch (symbol.toUpperCase()) {
+      case 'ETH':
+        return 'Ξ';
+      case 'BTC':
+        return '₿';
+      case 'SOL':
+        return '◎';
+      default:
+        return symbol.isNotEmpty ? symbol[0].toUpperCase() : '?';
+    }
   }
 
   String _formatTokenBalance(String rawBalance, String decimal) {
@@ -486,9 +457,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final txAsync = ref.watch(transactionsProvider(publicKey));
 
     return txAsync.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(strokeWidth: 2),
-      ),
+      loading: () =>
+          const Center(child: CircularProgressIndicator(strokeWidth: 2)),
       error: (e, _) => const Center(
         child: Text(
           'Failed to load transactions',
@@ -503,10 +473,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               children: [
                 Icon(
                   Icons.history_rounded,
-                  size: 56,
+                  size: 48,
                   color: Colors.white.withValues(alpha: 0.12),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 const Text(
                   'No recent activity',
                   style: TextStyle(
@@ -525,7 +495,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
           itemCount: txList.length,
           itemBuilder: (context, index) {
             final tx = txList[index];
@@ -550,23 +520,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
 
             return Container(
-              margin: const EdgeInsets.only(bottom: 10),
+              margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
               ),
               child: ListTile(
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 2,
+                ),
                 leading: Container(
-                  width: 46,
-                  height: 46,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: color, size: 22),
+                  child: Icon(icon, color: color, size: 20),
                 ),
                 title: Text(
                   label,
@@ -625,6 +597,111 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   String _shortHex(String hex, {int head = 6, int tail = 4}) {
     if (hex.length < head + tail + 1) return hex;
     return '${hex.substring(0, head)}...${hex.substring(hex.length - tail)}';
+  }
+
+  void _showCopyAddressSheet(Map<String, String> addresses) {
+    final chains = [
+      (key: ChainId.ethereum.key, name: 'Ethereum', symbol: 'ETH', color: AppColors.primary),
+      (key: ChainId.bitcoin.key, name: 'Bitcoin', symbol: 'BTC', color: const Color(0xFFFF9500)),
+      (key: ChainId.solana.key, name: 'Solana', symbol: 'SOL', color: const Color(0xFF9945FF)),
+    ];
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF151820),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Copy Address',
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            ...chains.map((chain) {
+              final address = addresses[chain.key] ?? '';
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(
+                    color: chain.color.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      chain.symbol[0],
+                      style: TextStyle(color: chain.color, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                  ),
+                ),
+                title: Text(chain.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
+                subtitle: Text(
+                  address.isEmpty ? 'Not available' : _shortHex(address, head: 8, tail: 6),
+                  style: TextStyle(
+                    color: address.isEmpty ? Colors.white24 : Colors.white38,
+                    fontSize: 11,
+                    fontFamily: 'RobotoMono',
+                  ),
+                ),
+                trailing: address.isEmpty
+                    ? null
+                    : const Icon(Icons.copy_rounded, size: 16, color: Colors.white38),
+                onTap: address.isEmpty ? null : () {
+                  Clipboard.setData(ClipboardData(text: address));
+                  Navigator.of(ctx).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${chain.name} address copied'),
+                      duration: const Duration(seconds: 2),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showReceiveBottomSheet(Map<String, String> addresses) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF151820),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => ReceiveBottomSheet(addresses: addresses),
+    );
+  }
+
+  void _showMoreBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF151820),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => const MoreBottomSheet(),
+    );
   }
 
   void _showAddTokenBottomSheet(BuildContext context) {

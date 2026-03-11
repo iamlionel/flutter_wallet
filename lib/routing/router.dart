@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../ui/authentication/widgets/create_pin_screen.dart';
+import '../ui/import_wallet/widgets/import_wallet_screen.dart';
 import '../ui/home/widgets/home_screen.dart';
 import '../ui/landing/widgets/splash_screen.dart';
 import '../ui/seed_phrase/widgets/confirm_phrase_screen.dart';
@@ -23,6 +24,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.confirmSeedPhrase,
         builder: (context, state) => const ConfirmPhraseScreen(),
+      ),
+      GoRoute(
+        path: Routes.importWallet,
+        builder: (context, state) => const ImportWalletScreen(),
       ),
       GoRoute(
         path: Routes.createPin,
