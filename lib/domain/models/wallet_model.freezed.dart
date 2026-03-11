@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WalletModel {
 
-@JsonKey(name: 'private_key') String? get privateKey;@JsonKey(name: 'public_key') String? get publicKey;
+@JsonKey(name: 'private_key') String? get privateKey;@JsonKey(name: 'public_key') String? get publicKey; Map<String, String> get addresses;
 /// Create a copy of WalletModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $WalletModelCopyWith<WalletModel> get copyWith => _$WalletModelCopyWithImpl<Wall
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletModel&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletModel&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey)&&const DeepCollectionEquality().equals(other.addresses, addresses));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,privateKey,publicKey);
+int get hashCode => Object.hash(runtimeType,privateKey,publicKey,const DeepCollectionEquality().hash(addresses));
 
 @override
 String toString() {
-  return 'WalletModel(privateKey: $privateKey, publicKey: $publicKey)';
+  return 'WalletModel(privateKey: $privateKey, publicKey: $publicKey, addresses: $addresses)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $WalletModelCopyWith<$Res>  {
   factory $WalletModelCopyWith(WalletModel value, $Res Function(WalletModel) _then) = _$WalletModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'private_key') String? privateKey,@JsonKey(name: 'public_key') String? publicKey
+@JsonKey(name: 'private_key') String? privateKey,@JsonKey(name: 'public_key') String? publicKey, Map<String, String> addresses
 });
 
 
@@ -65,11 +65,12 @@ class _$WalletModelCopyWithImpl<$Res>
 
 /// Create a copy of WalletModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? privateKey = freezed,Object? publicKey = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? privateKey = freezed,Object? publicKey = freezed,Object? addresses = null,}) {
   return _then(_self.copyWith(
 privateKey: freezed == privateKey ? _self.privateKey : privateKey // ignore: cast_nullable_to_non_nullable
 as String?,publicKey: freezed == publicKey ? _self.publicKey : publicKey // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,addresses: null == addresses ? _self.addresses : addresses // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,
   ));
 }
 
@@ -154,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'private_key')  String? privateKey, @JsonKey(name: 'public_key')  String? publicKey)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'private_key')  String? privateKey, @JsonKey(name: 'public_key')  String? publicKey,  Map<String, String> addresses)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WalletModel() when $default != null:
-return $default(_that.privateKey,_that.publicKey);case _:
+return $default(_that.privateKey,_that.publicKey,_that.addresses);case _:
   return orElse();
 
 }
@@ -175,10 +176,10 @@ return $default(_that.privateKey,_that.publicKey);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'private_key')  String? privateKey, @JsonKey(name: 'public_key')  String? publicKey)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'private_key')  String? privateKey, @JsonKey(name: 'public_key')  String? publicKey,  Map<String, String> addresses)  $default,) {final _that = this;
 switch (_that) {
 case _WalletModel():
-return $default(_that.privateKey,_that.publicKey);case _:
+return $default(_that.privateKey,_that.publicKey,_that.addresses);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +196,10 @@ return $default(_that.privateKey,_that.publicKey);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'private_key')  String? privateKey, @JsonKey(name: 'public_key')  String? publicKey)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'private_key')  String? privateKey, @JsonKey(name: 'public_key')  String? publicKey,  Map<String, String> addresses)?  $default,) {final _that = this;
 switch (_that) {
 case _WalletModel() when $default != null:
-return $default(_that.privateKey,_that.publicKey);case _:
+return $default(_that.privateKey,_that.publicKey,_that.addresses);case _:
   return null;
 
 }
@@ -210,11 +211,18 @@ return $default(_that.privateKey,_that.publicKey);case _:
 @JsonSerializable()
 
 class _WalletModel implements WalletModel {
-  const _WalletModel({@JsonKey(name: 'private_key') this.privateKey, @JsonKey(name: 'public_key') this.publicKey});
+  const _WalletModel({@JsonKey(name: 'private_key') this.privateKey, @JsonKey(name: 'public_key') this.publicKey, final  Map<String, String> addresses = const {}}): _addresses = addresses;
   factory _WalletModel.fromJson(Map<String, dynamic> json) => _$WalletModelFromJson(json);
 
 @override@JsonKey(name: 'private_key') final  String? privateKey;
 @override@JsonKey(name: 'public_key') final  String? publicKey;
+ final  Map<String, String> _addresses;
+@override@JsonKey() Map<String, String> get addresses {
+  if (_addresses is EqualUnmodifiableMapView) return _addresses;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_addresses);
+}
+
 
 /// Create a copy of WalletModel
 /// with the given fields replaced by the non-null parameter values.
@@ -229,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletModel&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletModel&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey)&&const DeepCollectionEquality().equals(other._addresses, _addresses));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,privateKey,publicKey);
+int get hashCode => Object.hash(runtimeType,privateKey,publicKey,const DeepCollectionEquality().hash(_addresses));
 
 @override
 String toString() {
-  return 'WalletModel(privateKey: $privateKey, publicKey: $publicKey)';
+  return 'WalletModel(privateKey: $privateKey, publicKey: $publicKey, addresses: $addresses)';
 }
 
 
@@ -249,7 +257,7 @@ abstract mixin class _$WalletModelCopyWith<$Res> implements $WalletModelCopyWith
   factory _$WalletModelCopyWith(_WalletModel value, $Res Function(_WalletModel) _then) = __$WalletModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'private_key') String? privateKey,@JsonKey(name: 'public_key') String? publicKey
+@JsonKey(name: 'private_key') String? privateKey,@JsonKey(name: 'public_key') String? publicKey, Map<String, String> addresses
 });
 
 
@@ -266,11 +274,12 @@ class __$WalletModelCopyWithImpl<$Res>
 
 /// Create a copy of WalletModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? privateKey = freezed,Object? publicKey = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? privateKey = freezed,Object? publicKey = freezed,Object? addresses = null,}) {
   return _then(_WalletModel(
 privateKey: freezed == privateKey ? _self.privateKey : privateKey // ignore: cast_nullable_to_non_nullable
 as String?,publicKey: freezed == publicKey ? _self.publicKey : publicKey // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,addresses: null == addresses ? _self._addresses : addresses // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,
   ));
 }
 

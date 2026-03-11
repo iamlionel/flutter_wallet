@@ -8,6 +8,7 @@ abstract class WalletModel with _$WalletModel {
   const factory WalletModel({
     @JsonKey(name: 'private_key') String? privateKey,
     @JsonKey(name: 'public_key') String? publicKey,
+    @Default({}) Map<String, String> addresses,
   }) = _WalletModel;
 
   factory WalletModel.fromJson(Map<String, dynamic> json) =>
