@@ -115,15 +115,25 @@ class _AddTokenBottomSheetState extends ConsumerState<AddTokenBottomSheet> {
               ],
             ),
             SizedBox(height: context.minBlockVertical * 4),
-            SolidButton(
-              text: 'Add Token',
-              gradient: AppColors.primaryGradient,
-              onPressed: () {
-                final token = ref.read(addTokenProvider.notifier).currentToken;
-                if (token != null) {
-                  ref.read(savedTokensProvider.notifier).addToken(token);
-                  Navigator.of(context).pop();
-                }
+            Builder(
+              builder: (context) {
+                final addTokenState = ref.watch(addTokenProvider);
+                return SolidButton(
+                  text: 'Add Token',
+                  gradient: AppColors.primaryGradient,
+                  onPressed: addTokenState.status == AddTokenStatus.success
+                      ? () {
+                          final token =
+                              ref.read(addTokenProvider.notifier).currentToken;
+                          if (token != null) {
+                            ref
+                                .read(savedTokensProvider.notifier)
+                                .addToken(token);
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      : null,
+                );
               },
             ),
             SizedBox(height: context.minBlockVertical * 4),

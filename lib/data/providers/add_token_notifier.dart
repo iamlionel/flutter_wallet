@@ -5,11 +5,11 @@ import '../../domain/repositories/contract_repository.dart';
 import '../../domain/states/add_token_state.dart';
 
 class AddTokenNotifier extends StateNotifier<AddTokenState> {
-  AddTokenNotifier({required ContractRepository contractRepository})
+  AddTokenNotifier({required ContractRepository? contractRepository})
     : _contractRepository = contractRepository,
       super(const AddTokenState());
 
-  final ContractRepository _contractRepository;
+  final ContractRepository? _contractRepository;
 
   void onContractAddressChanged(String address) {
     state = state.copyWith(contractAddress: address);
@@ -28,6 +28,7 @@ class AddTokenNotifier extends StateNotifier<AddTokenState> {
 
   Future<void> _getContractDetails() async {
     if (state.contractAddress.length < 40) return;
+    if (_contractRepository == null) return;
     state = state.copyWith(status: AddTokenStatus.loading);
 
     try {

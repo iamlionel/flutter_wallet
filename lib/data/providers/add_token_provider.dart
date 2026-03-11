@@ -7,6 +7,9 @@ import 'contract_provider.dart';
 final addTokenProvider = StateNotifierProvider<AddTokenNotifier, AddTokenState>(
   (ref) {
     final contractRepository = ref.watch(contractRepositoryProvider).value;
-    return AddTokenNotifier(contractRepository: contractRepository!);
+    if (contractRepository == null) {
+      return AddTokenNotifier(contractRepository: null);
+    }
+    return AddTokenNotifier(contractRepository: contractRepository);
   },
 );
