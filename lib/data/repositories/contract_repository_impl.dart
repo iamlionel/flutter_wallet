@@ -78,7 +78,6 @@ class ContractRepositoryImpl extends ContractRepository {
       function: contract.function('balanceOf'),
       params: <dynamic>[walletAddress],
     );
-    print(response);
     return response.first as String;
   }
 
@@ -114,53 +113,68 @@ class ContractRepositoryImpl extends ContractRepository {
 
   @override
   Future<double> getEthUsdPrice() async {
-    final uri = Uri.parse(
-      '$_etherscanBase?module=stats&action=ethprice',
-    );
-    final response = await http.get(uri);
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
-    if (json['status'] == '1') {
-      final result = json['result'] as Map<String, dynamic>;
-      return double.parse(result['ethusd'] as String);
+    try {
+      final uri = Uri.parse(
+        '$_etherscanBase?module=stats&action=ethprice',
+      );
+      final response = await http.get(uri);
+      if (response.statusCode != 200) return 0.0;
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      if (json['status'] == '1') {
+        final result = json['result'] as Map<String, dynamic>;
+        return double.parse(result['ethusd'] as String);
+      }
+      return 0.0;
+    } catch (_) {
+      return 0.0;
     }
-    return 0.0;
   }
 
   @override
   Future<List<TransactionModel>> getEthTransactions(String address) async {
-    final uri = Uri.parse(
-      '$_etherscanBase?module=account&action=txlist'
-      '&address=$address&startblock=0&endblock=99999999'
-      '&page=1&offset=20&sort=desc',
-    );
-    final response = await http.get(uri);
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
-    if (json['status'] == '1') {
-      final results = json['result'] as List<dynamic>;
-      return results
-          .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+    try {
+      final uri = Uri.parse(
+        '$_etherscanBase?module=account&action=txlist'
+        '&address=$address&startblock=0&endblock=99999999'
+        '&page=1&offset=20&sort=desc',
+      );
+      final response = await http.get(uri);
+      if (response.statusCode != 200) return [];
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      if (json['status'] == '1') {
+        final results = json['result'] as List<dynamic>;
+        return results
+            .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } catch (_) {
+      return [];
     }
-    return [];
   }
 
   @override
   Future<List<TransactionModel>> getErc20Transactions(String address) async {
-    final uri = Uri.parse(
-      '$_etherscanBase?module=account&action=tokentx'
-      '&address=$address&startblock=0&endblock=99999999'
-      '&page=1&offset=20&sort=desc',
-    );
-    final response = await http.get(uri);
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
-    if (json['status'] == '1') {
-      final results = json['result'] as List<dynamic>;
-      return results
-          .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)
-              .copyWith(isErc20: true))
-          .toList();
+    try {
+      final uri = Uri.parse(
+        '$_etherscanBase?module=account&action=tokentx'
+        '&address=$address&startblock=0&endblock=99999999'
+        '&page=1&offset=20&sort=desc',
+      );
+      final response = await http.get(uri);
+      if (response.statusCode != 200) return [];
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      if (json['status'] == '1') {
+        final results = json['result'] as List<dynamic>;
+        return results
+            .map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)
+                .copyWith(isErc20: true))
+            .toList();
+      }
+      return [];
+    } catch (_) {
+      return [];
     }
-    return [];
   }
 
   @override
