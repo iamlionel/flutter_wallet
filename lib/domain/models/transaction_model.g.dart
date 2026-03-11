@@ -17,6 +17,7 @@ _TransactionModel _$TransactionModelFromJson(Map<String, dynamic> json) =>
       tokenSymbol: json['tokenSymbol'] as String? ?? '',
       tokenDecimal: json['tokenDecimal'] as String? ?? '',
       isErc20: json['isErc20'] as bool? ?? false,
+      chain: json['chain'] as String? ?? 'eth',
     );
 
 Map<String, dynamic> _$TransactionModelToJson(_TransactionModel instance) =>
@@ -30,4 +31,5 @@ Map<String, dynamic> _$TransactionModelToJson(_TransactionModel instance) =>
       'tokenSymbol': instance.tokenSymbol,
       'tokenDecimal': instance.tokenDecimal,
       'isErc20': instance.isErc20,
+      'chain': instance.chain,
     };

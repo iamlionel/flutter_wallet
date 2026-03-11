@@ -15,10 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TransactionModel {
 
- String get hash; String get from; String get to; String get value;// in wei (string)
- String get timeStamp;// unix timestamp string
- String get isError;// "0" = success, "1" = failed
- String get tokenSymbol; String get tokenDecimal; bool get isErc20;
+ String get hash; String get from; String get to; String get value; String get timeStamp; String get isError; String get tokenSymbol; String get tokenDecimal; bool get isErc20; String get chain;
 /// Create a copy of TransactionModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +28,16 @@ $TransactionModelCopyWith<TransactionModel> get copyWith => _$TransactionModelCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransactionModel&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.value, value) || other.value == value)&&(identical(other.timeStamp, timeStamp) || other.timeStamp == timeStamp)&&(identical(other.isError, isError) || other.isError == isError)&&(identical(other.tokenSymbol, tokenSymbol) || other.tokenSymbol == tokenSymbol)&&(identical(other.tokenDecimal, tokenDecimal) || other.tokenDecimal == tokenDecimal)&&(identical(other.isErc20, isErc20) || other.isErc20 == isErc20));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransactionModel&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.value, value) || other.value == value)&&(identical(other.timeStamp, timeStamp) || other.timeStamp == timeStamp)&&(identical(other.isError, isError) || other.isError == isError)&&(identical(other.tokenSymbol, tokenSymbol) || other.tokenSymbol == tokenSymbol)&&(identical(other.tokenDecimal, tokenDecimal) || other.tokenDecimal == tokenDecimal)&&(identical(other.isErc20, isErc20) || other.isErc20 == isErc20)&&(identical(other.chain, chain) || other.chain == chain));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,hash,from,to,value,timeStamp,isError,tokenSymbol,tokenDecimal,isErc20);
+int get hashCode => Object.hash(runtimeType,hash,from,to,value,timeStamp,isError,tokenSymbol,tokenDecimal,isErc20,chain);
 
 @override
 String toString() {
-  return 'TransactionModel(hash: $hash, from: $from, to: $to, value: $value, timeStamp: $timeStamp, isError: $isError, tokenSymbol: $tokenSymbol, tokenDecimal: $tokenDecimal, isErc20: $isErc20)';
+  return 'TransactionModel(hash: $hash, from: $from, to: $to, value: $value, timeStamp: $timeStamp, isError: $isError, tokenSymbol: $tokenSymbol, tokenDecimal: $tokenDecimal, isErc20: $isErc20, chain: $chain)';
 }
 
 
@@ -51,7 +48,7 @@ abstract mixin class $TransactionModelCopyWith<$Res>  {
   factory $TransactionModelCopyWith(TransactionModel value, $Res Function(TransactionModel) _then) = _$TransactionModelCopyWithImpl;
 @useResult
 $Res call({
- String hash, String from, String to, String value, String timeStamp, String isError, String tokenSymbol, String tokenDecimal, bool isErc20
+ String hash, String from, String to, String value, String timeStamp, String isError, String tokenSymbol, String tokenDecimal, bool isErc20, String chain
 });
 
 
@@ -68,7 +65,7 @@ class _$TransactionModelCopyWithImpl<$Res>
 
 /// Create a copy of TransactionModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? hash = null,Object? from = null,Object? to = null,Object? value = null,Object? timeStamp = null,Object? isError = null,Object? tokenSymbol = null,Object? tokenDecimal = null,Object? isErc20 = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? hash = null,Object? from = null,Object? to = null,Object? value = null,Object? timeStamp = null,Object? isError = null,Object? tokenSymbol = null,Object? tokenDecimal = null,Object? isErc20 = null,Object? chain = null,}) {
   return _then(_self.copyWith(
 hash: null == hash ? _self.hash : hash // ignore: cast_nullable_to_non_nullable
 as String,from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
@@ -79,7 +76,8 @@ as String,isError: null == isError ? _self.isError : isError // ignore: cast_nul
 as String,tokenSymbol: null == tokenSymbol ? _self.tokenSymbol : tokenSymbol // ignore: cast_nullable_to_non_nullable
 as String,tokenDecimal: null == tokenDecimal ? _self.tokenDecimal : tokenDecimal // ignore: cast_nullable_to_non_nullable
 as String,isErc20: null == isErc20 ? _self.isErc20 : isErc20 // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,chain: null == chain ? _self.chain : chain // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -164,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String hash,  String from,  String to,  String value,  String timeStamp,  String isError,  String tokenSymbol,  String tokenDecimal,  bool isErc20)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String hash,  String from,  String to,  String value,  String timeStamp,  String isError,  String tokenSymbol,  String tokenDecimal,  bool isErc20,  String chain)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TransactionModel() when $default != null:
-return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that.isError,_that.tokenSymbol,_that.tokenDecimal,_that.isErc20);case _:
+return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that.isError,_that.tokenSymbol,_that.tokenDecimal,_that.isErc20,_that.chain);case _:
   return orElse();
 
 }
@@ -185,10 +183,10 @@ return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String hash,  String from,  String to,  String value,  String timeStamp,  String isError,  String tokenSymbol,  String tokenDecimal,  bool isErc20)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String hash,  String from,  String to,  String value,  String timeStamp,  String isError,  String tokenSymbol,  String tokenDecimal,  bool isErc20,  String chain)  $default,) {final _that = this;
 switch (_that) {
 case _TransactionModel():
-return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that.isError,_that.tokenSymbol,_that.tokenDecimal,_that.isErc20);case _:
+return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that.isError,_that.tokenSymbol,_that.tokenDecimal,_that.isErc20,_that.chain);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +203,10 @@ return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String hash,  String from,  String to,  String value,  String timeStamp,  String isError,  String tokenSymbol,  String tokenDecimal,  bool isErc20)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String hash,  String from,  String to,  String value,  String timeStamp,  String isError,  String tokenSymbol,  String tokenDecimal,  bool isErc20,  String chain)?  $default,) {final _that = this;
 switch (_that) {
 case _TransactionModel() when $default != null:
-return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that.isError,_that.tokenSymbol,_that.tokenDecimal,_that.isErc20);case _:
+return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that.isError,_that.tokenSymbol,_that.tokenDecimal,_that.isErc20,_that.chain);case _:
   return null;
 
 }
@@ -220,21 +218,19 @@ return $default(_that.hash,_that.from,_that.to,_that.value,_that.timeStamp,_that
 @JsonSerializable()
 
 class _TransactionModel implements TransactionModel {
-  const _TransactionModel({required this.hash, required this.from, required this.to, required this.value, required this.timeStamp, required this.isError, this.tokenSymbol = '', this.tokenDecimal = '', this.isErc20 = false});
+  const _TransactionModel({required this.hash, required this.from, required this.to, required this.value, required this.timeStamp, required this.isError, this.tokenSymbol = '', this.tokenDecimal = '', this.isErc20 = false, this.chain = 'eth'});
   factory _TransactionModel.fromJson(Map<String, dynamic> json) => _$TransactionModelFromJson(json);
 
 @override final  String hash;
 @override final  String from;
 @override final  String to;
 @override final  String value;
-// in wei (string)
 @override final  String timeStamp;
-// unix timestamp string
 @override final  String isError;
-// "0" = success, "1" = failed
 @override@JsonKey() final  String tokenSymbol;
 @override@JsonKey() final  String tokenDecimal;
 @override@JsonKey() final  bool isErc20;
+@override@JsonKey() final  String chain;
 
 /// Create a copy of TransactionModel
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransactionModel&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.value, value) || other.value == value)&&(identical(other.timeStamp, timeStamp) || other.timeStamp == timeStamp)&&(identical(other.isError, isError) || other.isError == isError)&&(identical(other.tokenSymbol, tokenSymbol) || other.tokenSymbol == tokenSymbol)&&(identical(other.tokenDecimal, tokenDecimal) || other.tokenDecimal == tokenDecimal)&&(identical(other.isErc20, isErc20) || other.isErc20 == isErc20));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransactionModel&&(identical(other.hash, hash) || other.hash == hash)&&(identical(other.from, from) || other.from == from)&&(identical(other.to, to) || other.to == to)&&(identical(other.value, value) || other.value == value)&&(identical(other.timeStamp, timeStamp) || other.timeStamp == timeStamp)&&(identical(other.isError, isError) || other.isError == isError)&&(identical(other.tokenSymbol, tokenSymbol) || other.tokenSymbol == tokenSymbol)&&(identical(other.tokenDecimal, tokenDecimal) || other.tokenDecimal == tokenDecimal)&&(identical(other.isErc20, isErc20) || other.isErc20 == isErc20)&&(identical(other.chain, chain) || other.chain == chain));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,hash,from,to,value,timeStamp,isError,tokenSymbol,tokenDecimal,isErc20);
+int get hashCode => Object.hash(runtimeType,hash,from,to,value,timeStamp,isError,tokenSymbol,tokenDecimal,isErc20,chain);
 
 @override
 String toString() {
-  return 'TransactionModel(hash: $hash, from: $from, to: $to, value: $value, timeStamp: $timeStamp, isError: $isError, tokenSymbol: $tokenSymbol, tokenDecimal: $tokenDecimal, isErc20: $isErc20)';
+  return 'TransactionModel(hash: $hash, from: $from, to: $to, value: $value, timeStamp: $timeStamp, isError: $isError, tokenSymbol: $tokenSymbol, tokenDecimal: $tokenDecimal, isErc20: $isErc20, chain: $chain)';
 }
 
 
@@ -269,7 +265,7 @@ abstract mixin class _$TransactionModelCopyWith<$Res> implements $TransactionMod
   factory _$TransactionModelCopyWith(_TransactionModel value, $Res Function(_TransactionModel) _then) = __$TransactionModelCopyWithImpl;
 @override @useResult
 $Res call({
- String hash, String from, String to, String value, String timeStamp, String isError, String tokenSymbol, String tokenDecimal, bool isErc20
+ String hash, String from, String to, String value, String timeStamp, String isError, String tokenSymbol, String tokenDecimal, bool isErc20, String chain
 });
 
 
@@ -286,7 +282,7 @@ class __$TransactionModelCopyWithImpl<$Res>
 
 /// Create a copy of TransactionModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? hash = null,Object? from = null,Object? to = null,Object? value = null,Object? timeStamp = null,Object? isError = null,Object? tokenSymbol = null,Object? tokenDecimal = null,Object? isErc20 = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? hash = null,Object? from = null,Object? to = null,Object? value = null,Object? timeStamp = null,Object? isError = null,Object? tokenSymbol = null,Object? tokenDecimal = null,Object? isErc20 = null,Object? chain = null,}) {
   return _then(_TransactionModel(
 hash: null == hash ? _self.hash : hash // ignore: cast_nullable_to_non_nullable
 as String,from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
@@ -297,7 +293,8 @@ as String,isError: null == isError ? _self.isError : isError // ignore: cast_nul
 as String,tokenSymbol: null == tokenSymbol ? _self.tokenSymbol : tokenSymbol // ignore: cast_nullable_to_non_nullable
 as String,tokenDecimal: null == tokenDecimal ? _self.tokenDecimal : tokenDecimal // ignore: cast_nullable_to_non_nullable
 as String,isErc20: null == isErc20 ? _self.isErc20 : isErc20 // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,chain: null == chain ? _self.chain : chain // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
