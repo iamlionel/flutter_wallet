@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:web3dart/web3dart.dart';
 
 import '../../../data/providers/app_provider.dart';
-import '../../../data/providers/contract_provider.dart';
+import '../../../data/providers/chain_provider.dart';
 import '../../../data/providers/wallet_data_provider.dart';
+import '../../../domain/models/chain_id.dart';
 import '../../core/themes/colors.dart';
 import '../../widgets/add_token_bottom_sheet.dart';
 import '../../widgets/send_bottom_sheet.dart';
@@ -37,10 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final app = ref.watch(appProvider);
-    final ethBalanceAsync = ref.watch(
-      ethBalanceProvider(app.wallet.publicKey ?? ''),
-    );
-    final ethUsdPriceAsync = ref.watch(ethUsdPriceProvider);
+    final totalUsdAsync = ref.watch(totalUsdBalanceProvider);
 
     return Scaffold(
       // ── Scaffold handles SafeArea / status bar automatically ─────────────
@@ -57,7 +54,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: Column(
           children: [
             // ── Balance ────────────────────────────────────────────────────
-            _buildBalanceSection(context, ethBalanceAsync, ethUsdPriceAsync),
+            _buildBalanceSection(context, totalUsdAsync),
 
             // ── Quick Actions ──────────────────────────────────────────────
             _buildQuickActions(context),
@@ -89,7 +86,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [_buildAssetsTab(ethBalanceAsync), _buildActivityTab()],
+                children: [_buildAssetsTab(), _buildActivityTab()],
               ),
             ),
           ],
@@ -150,7 +147,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               ),
               const SizedBox(width: 4),
               const Text(
-                'Ethereum Mainnet',
+                'Multi-Chain Wallet',
                 style: TextStyle(fontSize: 11, color: Colors.white60),
               ),
             ],
@@ -196,23 +193,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   // ── Balance Section ─────────────────────────────────────────────────────────
   Widget _buildBalanceSection(
     BuildContext context,
-    AsyncValue<EtherAmount?> ethBalanceAsync,
-    AsyncValue<double> ethUsdPriceAsync,
+    AsyncValue<double> totalUsdAsync,
   ) {
     final theme = Theme.of(context);
-
-    double ethAmount = 0.0;
-    double usdPrice = 0.0;
-
-    ethBalanceAsync.whenData((balance) {
-      if (balance != null) {
-        ethAmount = balance.getValueInUnit(EtherUnit.ether).toDouble();
-      }
-    });
-    ethUsdPriceAsync.whenData((price) => usdPrice = price);
-
-    final totalUsd = ethAmount * usdPrice;
-    final isLoading = ethBalanceAsync.isLoading || ethUsdPriceAsync.isLoading;
 
     return Container(
       color: const Color(0xFF0F1218),
@@ -224,22 +207,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             style: TextStyle(color: Colors.white54, fontSize: 13),
           ),
           const SizedBox(height: 4),
-          isLoading
-              ? const SizedBox(
-                  height: 44,
-                  child: Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
-              : Text(
-                  '\$${totalUsd.toStringAsFixed(2)}',
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    fontSize: 36,
-                    letterSpacing: -1,
-                  ),
-                ),
+          totalUsdAsync.when(
+            loading: () => const SizedBox(
+              height: 44,
+              child: Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+            error: (_, __) => Text(
+              '\$0.00',
+              style: theme.textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                fontSize: 36,
+                letterSpacing: -1,
+              ),
+            ),
+            data: (totalUsd) => Text(
+              '\$${_formatUsd(totalUsd)}',
+              style: theme.textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                fontSize: 36,
+                letterSpacing: -1,
+              ),
+            ),
+          ),
           const SizedBox(height: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -247,9 +240,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               color: AppColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(
-              '${ethAmount.toStringAsFixed(4)} ETH',
-              style: const TextStyle(
+            child: const Text(
+              'Multi-Chain Wallet',
+              style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
@@ -259,6 +252,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         ],
       ),
     );
+  }
+
+  String _formatUsd(double value) {
+    final parts = value.toStringAsFixed(2).split('.');
+    final intPart = parts[0];
+    final decPart = parts[1];
+    final buffer = StringBuffer();
+    for (int i = 0; i < intPart.length; i++) {
+      if (i > 0 && (intPart.length - i) % 3 == 0) buffer.write(',');
+      buffer.write(intPart[i]);
+    }
+    return '$buffer.$decPart';
   }
 
   // ── Quick Actions ───────────────────────────────────────────────────────────
@@ -316,32 +321,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   // ── Assets Tab ──────────────────────────────────────────────────────────────
-  Widget _buildAssetsTab(AsyncValue<EtherAmount?> ethBalanceAsync) {
+  Widget _buildAssetsTab() {
     final app = ref.watch(appProvider);
+    final addresses = app.wallet.addresses;
     final publicKey = app.wallet.publicKey ?? '';
     final savedTokens = ref.watch(savedTokensProvider);
 
-    double ethAmount = 0.0;
-    ethBalanceAsync.whenData((balance) {
-      if (balance != null) {
-        ethAmount = balance.getValueInUnit(EtherUnit.ether).toDouble();
-      }
-    });
+    final chains = [
+      (
+        chainId: ChainId.ethereum,
+        symbol: 'ETH',
+        name: 'Ethereum',
+        color: AppColors.primary,
+      ),
+      (
+        chainId: ChainId.bitcoin,
+        symbol: 'BTC',
+        name: 'Bitcoin',
+        color: const Color(0xFFFF9500),
+      ),
+      (
+        chainId: ChainId.solana,
+        symbol: 'SOL',
+        name: 'Solana',
+        color: const Color(0xFF9945FF),
+      ),
+    ];
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-      itemCount: 1 + savedTokens.length,
+      itemCount: chains.length + savedTokens.length,
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildAssetTile(
-            name: 'Ethereum',
-            symbol: 'ETH',
-            amount: ethAmount.toStringAsFixed(4),
-            color: AppColors.primary,
-            isLoading: ethBalanceAsync.isLoading,
+        if (index < chains.length) {
+          final chain = chains[index];
+          final address = addresses[chain.chainId.key] ?? '';
+          final balanceAsync = ref.watch(
+            nativeBalanceProvider((chainId: chain.chainId, address: address)),
+          );
+          return balanceAsync.when(
+            data: (bal) => _buildAssetTile(
+              name: chain.name,
+              symbol: chain.symbol,
+              amount: bal.toStringAsFixed(4),
+              color: chain.color,
+            ),
+            loading: () => _buildAssetTile(
+              name: chain.name,
+              symbol: chain.symbol,
+              amount: '...',
+              color: chain.color,
+              isLoading: true,
+            ),
+            error: (_, __) => _buildAssetTile(
+              name: chain.name,
+              symbol: chain.symbol,
+              amount: '0.0000',
+              color: chain.color,
+            ),
           );
         }
-        final token = savedTokens[index - 1];
+        final token = savedTokens[index - chains.length];
         final balanceAsync = ref.watch(
           tokenBalanceProvider((token: token, publicKey: publicKey)),
         );
