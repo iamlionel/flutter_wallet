@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../core/themes/colors.dart';
-import '../core/themes/dimens.dart';
-import '../core/themes/font_weights.dart';
-import '../core/themes/text_styles.dart';
 
 class MnemonicsChip extends StatelessWidget {
   const MnemonicsChip({
@@ -21,49 +18,70 @@ class MnemonicsChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return InkWell(
-      splashColor: AppColors.primary.withOpacity(0.5),
-      borderRadius: BorderRadius.circular(10),
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.primary),
+          borderRadius: BorderRadius.circular(12),
           color: isSelected
-              ? AppColors.primary.withOpacity(0.7)
-              : AppColors.background,
+              ? AppColors.primary.withOpacity(0.15)
+              : (isDark
+                    ? Colors.white.withOpacity(0.05)
+                    : Colors.grey.shade100),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : (isDark
+                      ? Colors.white.withOpacity(0.1)
+                      : Colors.grey.shade300),
+            width: 1,
+          ),
         ),
-        child: (index != null)
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    index.toString(),
-                    style: AppTextStyle.caption.copyWith(
-                      fontSize: 16,
-                      fontWeight: AppFontWeight.bold,
-                      color: AppColors.black.withOpacity(0.6),
-                    ),
+        child: Stack(
+          children: [
+            if (index != null)
+              Positioned(
+                left: 0,
+                top: 0,
+                child: Text(
+                  index.toString(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 9,
                   ),
-                  SizedBox(width: Dimens.of(context).minBlockVertical * 2),
-                  Text(
-                    text,
-                    style: AppTextStyle.caption.copyWith(
-                      fontSize: 18,
-                      fontWeight: AppFontWeight.semiBold,
-                    ),
-                  ),
-                ],
-              )
-            : Text(
-                text,
-                style: AppTextStyle.caption.copyWith(
-                  fontSize: 18,
-                  fontWeight: AppFontWeight.semiBold,
-                  color: isSelected ? Colors.transparent : AppColors.black,
                 ),
               ),
+            Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: EdgeInsets.only(left: index != null ? 12 : 0),
+                  child: Text(
+                    text,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: isSelected
+                          ? AppColors.primary
+                          : theme.colorScheme.onSurface,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

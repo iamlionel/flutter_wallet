@@ -12,12 +12,14 @@ class SwapBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       height: context.screenHeight - (context.screenHeight / 3),
       padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,17 +29,34 @@ class SwapBottomSheet extends StatelessWidget {
               'Swap',
               style: AppTextStyle.headline2.copyWith(
                 fontWeight: AppFontWeight.bold,
+                color: theme.colorScheme.onSurface,
               ),
             ),
           ),
           SizedBox(height: context.minBlockVertical * 2),
-          const Text('Swap from'),
-          const InputBox(hintText: 'Search, public address (0x), ENS'),
+          Text(
+            'Swap from',
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const InputBox(hintText: 'Ethereum (ETH)'),
           SizedBox(height: context.minBlockVertical * 2),
-          const Text('Swap to'),
-          const InputBox(hintText: 'Search, public address (0x), ENS'),
+          Text(
+            'Swap to',
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const InputBox(hintText: 'Search token...'),
           const Spacer(),
-          SolidButton(text: 'Review', onPressed: () {}),
+          SolidButton(
+            text: 'Review',
+            gradient: AppColors.primaryGradient,
+            onPressed: () {},
+          ),
           SizedBox(height: context.minBlockVertical * 4),
         ],
       ),

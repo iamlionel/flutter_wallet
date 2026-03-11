@@ -6,7 +6,7 @@ import '../../../data/providers/app_provider.dart';
 import '../../../data/providers/create_pin_provider.dart';
 import '../../../domain/states/create_pin_state.dart';
 import '../../../routing/routes.dart';
-import '../../core/themes/text_styles.dart';
+import '../../core/themes/colors.dart';
 import '../../widgets/extension.dart';
 import '../../widgets/input_box.dart';
 import '../../widgets/solid_button.dart';
@@ -17,7 +17,7 @@ class CreatePinScreen extends ConsumerStatefulWidget {
   final String mnemonics;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _CreatePinState();
+  ConsumerState<CreatePinScreen> createState() => _CreatePinState();
 }
 
 class _CreatePinState extends ConsumerState<CreatePinScreen> {
@@ -25,6 +25,7 @@ class _CreatePinState extends ConsumerState<CreatePinScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(createPinProvider);
     final notifier = ref.read(createPinProvider.notifier);
+    final theme = Theme.of(context);
 
     ref.listen<CreatePinState>(createPinProvider, (previous, next) {
       if (next.status == CreatePinStatus.failure) {
@@ -37,75 +38,72 @@ class _CreatePinState extends ConsumerState<CreatePinScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create your password'),
+        title: const Text('Create Password'),
         leading: IconButton(
-          onPressed: () {
-            context.pop();
-          },
-          icon: Icon(Icons.navigate_before, color: Colors.black, size: 40),
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '''To protect the security of your wallet please register a minimum of 8 passcode''',
-                  style: AppTextStyle.overline.copyWith(),
-                ),
-                SizedBox(height: context.minBlockVertical * 7),
-                Text(
-                  'Enter your new password',
-                  style: AppTextStyle.overline.copyWith(),
-                ),
-                SizedBox(height: context.minBlockVertical),
-                InputBox(
-                  hintText: 'Minimum of 8 characters',
-                  onChanged: notifier.onPasswordChanged,
-                  isPassword: true,
-                  validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Password is required';
-                    }
-
-                    if (value!.length < 8) {
-                      return 'Password too short';
-                    }
-                    return null;
-                  },
+                  'Set a secure password to protect your assets on this device.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 SizedBox(height: context.minBlockVertical * 5),
                 Text(
-                  'Confirm password',
-                  style: AppTextStyle.overline.copyWith(),
+                  'New Password',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-                SizedBox(height: context.minBlockVertical),
+                const SizedBox(height: 8),
                 InputBox(
-                  hintText: 'Minimum of 8 characters',
+                  hintText: 'Minimum 8 characters',
+                  onChanged: notifier.onPasswordChanged,
                   isPassword: true,
-                  onChanged: notifier.onConfirmPasswordChanged,
                   validator: (value) {
-                    if (value?.isEmpty ?? true) {
-                      return 'Confirm Password is required';
-                    }
-
-                    if (value!.length < 8) {
-                      return 'Password too short';
-                    }
-
-                    if (value != state.password) {
-                      return 'Password does not match';
-                    }
+                    if (value?.isEmpty ?? true) return 'Password is required';
+                    if (value!.length < 8) return 'Password too short';
                     return null;
                   },
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+                SizedBox(height: context.minBlockVertical * 4),
+                Text(
+                  'Confirm Password',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                InputBox(
+                  hintText: 'Confirm your password',
+                  isPassword: true,
+                  onChanged: notifier.onConfirmPasswordChanged,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true)
+                      return 'Confirm Password is required';
+                    if (value != state.password)
+                      return 'Passwords do not match';
+                    return null;
+                  },
+                ),
+                SizedBox(height: context.screenHeight * 0.15),
                 SolidButton(
                   text: 'Create Wallet',
-                  onPressed: state.isValid
+                  gradient: AppColors.primaryGradient,
+                  loading: state.status == CreatePinStatus.loading,
+                  onPressed:
+                      state.status != CreatePinStatus.loading && state.isValid
                       ? () => notifier.getUserKeys(
                           widget.mnemonics,
                           state.password,

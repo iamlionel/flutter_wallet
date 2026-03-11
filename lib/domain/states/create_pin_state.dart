@@ -4,7 +4,7 @@ import '../models/wallet_model.dart';
 
 part 'create_pin_state.freezed.dart';
 
-enum CreatePinStatus { initial, failure, success }
+enum CreatePinStatus { initial, failure, loading, success }
 
 @freezed
 abstract class CreatePinState with _$CreatePinState {

@@ -12,6 +12,7 @@ class CreatePinNotifier extends StateNotifier<CreatePinState> {
   final PhraseRepository _phraseRepository;
 
   Future<void> getUserKeys(String mnemonics, String password) async {
+    state = state.copyWith(status: CreatePinStatus.loading);
     try {
       final privateKey = await _phraseRepository.generatePrivatekey(mnemonics);
       final publicKey = await _phraseRepository.generatePublicKey(privateKey);

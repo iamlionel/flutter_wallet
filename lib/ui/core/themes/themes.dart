@@ -27,24 +27,76 @@ class AppTheme {
     ),
   );
 
-  static ThemeData get lightTheme {
+  static ThemeData get lightTheme => _buildTheme(Brightness.light);
+  static ThemeData get darkTheme => _buildTheme(Brightness.dark);
+
+  static ThemeData _buildTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final primaryColor = AppColors.primary;
+
     return ThemeData(
-      textTheme: _textTheme,
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       useMaterial3: true,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
+      brightness: brightness,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primaryColor,
+        brightness: brightness,
+        primary: primaryColor,
+        secondary: AppColors.secondary,
+        surface: isDark ? AppColors.surface : Colors.white,
+        onSurface: isDark ? AppColors.textPrimary : Colors.black,
+        background: isDark ? AppColors.background : Colors.white,
+      ),
+      scaffoldBackgroundColor: isDark ? AppColors.background : Colors.white,
+      textTheme: _textTheme.apply(
+        bodyColor: isDark ? AppColors.textPrimary : Colors.black,
+        displayColor: isDark ? AppColors.textPrimary : Colors.black,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black),
+        titleTextStyle: _textTheme.titleLarge?.copyWith(
+          color: isDark ? Colors.white : Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      cardTheme: const CardThemeData(
-        elevation: 2,
-        margin: EdgeInsets.symmetric(vertical: 4),
+      cardTheme: CardThemeData(
+        color: isDark ? AppColors.surface : Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(
+            color: isDark ? AppColors.primaryBorder : Colors.grey.shade200,
+          ),
+        ),
       ),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: OutlineInputBorder(),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          minimumSize: const Size.fromHeight(56),
+          elevation: 0,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: isDark ? AppColors.surface : Colors.grey.shade100,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
       ),
     );
   }

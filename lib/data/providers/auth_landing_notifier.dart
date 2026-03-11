@@ -25,6 +25,7 @@ class AuthLandingNotifier extends StateNotifier<AuthLandingState> {
   }
 
   Future<void> onSubmitted() async {
+    state = state.copyWith(status: AuthLandingStatus.loading);
     try {
       final response = await _phraseRepository.retrieveData(state.password);
       if (response != null) {

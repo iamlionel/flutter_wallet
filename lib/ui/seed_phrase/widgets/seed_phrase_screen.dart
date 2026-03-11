@@ -1,4 +1,3 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,9 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../../data/providers/seed_phrase_provider.dart';
 import '../../../routing/routes.dart';
 import '../../core/themes/colors.dart';
-import '../../core/themes/dimens.dart';
-import '../../core/themes/font_weights.dart';
-import '../../core/themes/text_styles.dart';
 import '../../widgets/extension.dart';
 import '../../widgets/mnemonics_chip.dart';
 import '../../widgets/solid_button.dart';
@@ -25,7 +21,7 @@ class _SeedPhraseScreenState extends ConsumerState<SeedPhraseScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(seedPhraseProvider.notifier).generateMnemonic();
     });
   }
@@ -33,118 +29,149 @@ class _SeedPhraseScreenState extends ConsumerState<SeedPhraseScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(seedPhraseProvider);
-    final notifier = ref.read(seedPhraseProvider.notifier);
+    final theme = Theme.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Your Recovery Phrase'),
+        title: const Text('Recovery Phrase'),
         leading: IconButton(
-          onPressed: () => {context.pop()},
-          icon: const Icon(
-            Icons.navigate_before,
-            color: AppColors.black,
-            size: 40,
-          ),
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ).add(const EdgeInsets.only(bottom: 20)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: Dimens.of(context).minBlockVertical * 4),
-              Text(
-                '''Write down these 12 words in the correct order and keep them in a safe place''',
-                style: AppTextStyle.overline.copyWith(),
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: AppColors.backgroundGradient,
               ),
-              SizedBox(height: Dimens.of(context).minBlockVertical * 3),
-              DottedBorder(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(10),
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        return Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: state.mnemonics
-                              .asMap()
-                              .map(
-                                (key, text) => MapEntry(
-                                  key,
-                                  MnemonicsChip(text: text, index: key + 1),
-                                ),
-                              )
-                              .values
-                              .toList(),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  Text(
+                    'Your Recovery Phrase',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Write down these 12 words in order.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // 3-Column Grid for Words
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.03),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.white.withOpacity(0.08)),
+                    ),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                            childAspectRatio:
+                                2.0, // Slightly taller for more space
+                          ),
+                      itemCount: state.mnemonics.length,
+                      itemBuilder: (context, index) {
+                        return MnemonicsChip(
+                          text: state.mnemonics[index],
+                          index: index + 1,
                         );
                       },
                     ),
                   ),
-                ),
-              ),
-              SizedBox(height: Dimens.of(context).minBlockVertical * 2),
-              GestureDetector(
-                onTap: () {
-                  Clipboard.setData(
-                    ClipboardData(text: state.mnemonics.join(' ')),
-                  );
-                  context.showSuccessMessage('Copied Successfully');
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.copy, color: AppColors.primary),
-                    const SizedBox(width: 5),
-                    Text(
-                      'Copy to clipboard',
-                      style: AppTextStyle.overline.copyWith(
+                  const SizedBox(height: 16),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(text: state.mnemonics.join(' ')),
+                        );
+                        context.showSuccessMessage('Copied to clipboard');
+                      },
+                      icon: Icon(
+                        Icons.copy_rounded,
+                        size: 18,
                         color: AppColors.primary,
-                        fontWeight: AppFontWeight.semiBold,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.dangerous_outlined, color: Colors.red),
-                    SizedBox(width: Dimens.of(context).minBlockHorizontal * 2),
-                    Expanded(
-                      child: Text(
-                        '''Keep your recovery phrase in a safe place and don't share it with anyone!''',
-                        style: AppTextStyle.overline.copyWith(
-                          color: Colors.red,
-                          fontWeight: AppFontWeight.semiBold,
+                      label: Text(
+                        'Copy to clipboard',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const Spacer(),
+                  // Warning Box
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.danger.withOpacity(0.2),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.warning_rounded,
+                          color: AppColors.danger,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "Never share your phrase. It manages your assets.",
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppColors.danger.withOpacity(0.9),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SolidButton(
+                    text: 'Continue',
+                    gradient: AppColors.primaryGradient,
+                    onPressed: () {
+                      ref
+                          .read(seedPhraseProvider.notifier)
+                          .clearSelectedMnemonics();
+                      context.push(Routes.confirmSeedPhrase);
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-              SizedBox(height: Dimens.of(context).minBlockVertical * 3),
-              SolidButton(
-                text: 'Continue',
-                onPressed: () {
-                  notifier.clearSelectedMnemonics();
-                  context.push(Routes.confirmSeedPhrase);
-                },
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

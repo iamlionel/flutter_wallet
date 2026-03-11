@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../data/providers/add_token_provider.dart';
 import '../../domain/states/add_token_state.dart';
 import '../core/themes/colors.dart';
@@ -37,6 +38,9 @@ class _AddTokenBottomSheetState extends ConsumerState<AddTokenBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     ref.listen<AddTokenState>(addTokenProvider, (previous, next) {
       if (previous?.status != AddTokenStatus.success &&
           next.status == AddTokenStatus.success) {
@@ -48,9 +52,9 @@ class _AddTokenBottomSheetState extends ConsumerState<AddTokenBottomSheet> {
     return Container(
       height: context.screenHeight - (context.screenHeight / 5),
       padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -59,28 +63,31 @@ class _AddTokenBottomSheetState extends ConsumerState<AddTokenBottomSheet> {
               'Import Tokens',
               style: AppTextStyle.headline2.copyWith(
                 fontWeight: AppFontWeight.bold,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             SizedBox(height: context.minBlockVertical * 2),
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.yellow.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(10),
+                color: AppColors.warning.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.warning.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
                   const Icon(
-                    Icons.dangerous_outlined,
-                    color: AppColors.primary,
+                    Icons.warning_amber_rounded,
+                    color: AppColors.warning,
                   ),
-                  SizedBox(width: context.minBlockHorizontal * 2),
+                  SizedBox(width: context.minBlockHorizontal * 3),
                   Expanded(
                     child: Text(
-                      '''Anyone can create a token, including creating fake versions of existing tokens.''',
+                      '''Anyone can create a token, including fake versions of existing tokens.''',
                       style: AppTextStyle.overline.copyWith(
-                        color: Colors.black,
+                        color: isDark ? Colors.white70 : Colors.black87,
                         fontWeight: AppFontWeight.regular,
+                        fontSize: 14,
                       ),
                     ),
                   ),
@@ -107,7 +114,11 @@ class _AddTokenBottomSheetState extends ConsumerState<AddTokenBottomSheet> {
               ],
             ),
             SizedBox(height: context.minBlockVertical * 4),
-            SolidButton(text: 'Add Token', onPressed: () {}),
+            SolidButton(
+              text: 'Add Token',
+              gradient: AppColors.primaryGradient,
+              onPressed: () {},
+            ),
             SizedBox(height: context.minBlockVertical * 4),
           ],
         ),

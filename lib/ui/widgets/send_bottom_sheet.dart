@@ -12,12 +12,14 @@ class SendBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: context.screenHeight - (context.screenHeight / 3),
       padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
       ),
       child: Column(
         children: [
@@ -26,6 +28,7 @@ class SendBottomSheet extends StatelessWidget {
               'Send',
               style: AppTextStyle.headline2.copyWith(
                 fontWeight: AppFontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -37,15 +40,20 @@ class SendBottomSheet extends StatelessWidget {
               Expanded(
                 child: SolidButton(
                   text: 'Cancel',
-                  color: Colors.white,
-                  textColor: AppColors.primary,
-                  border: const BorderSide(color: AppColors.primary),
-                  onPressed: () {},
+                  color: isDark
+                      ? Colors.white.withOpacity(0.05)
+                      : Colors.grey.shade100,
+                  textColor: isDark ? Colors.white : Colors.black,
+                  onPressed: () => Navigator.pop(context),
                 ),
               ),
               SizedBox(width: context.minBlockHorizontal * 5),
               Expanded(
-                child: SolidButton(text: 'Next', onPressed: () {}),
+                child: SolidButton(
+                  text: 'Next',
+                  gradient: AppColors.primaryGradient,
+                  onPressed: () {},
+                ),
               ),
             ],
           ),
