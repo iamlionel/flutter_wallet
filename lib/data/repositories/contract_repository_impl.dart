@@ -78,7 +78,7 @@ class ContractRepositoryImpl extends ContractRepository {
       function: contract.function('balanceOf'),
       params: <dynamic>[walletAddress],
     );
-    return response.first as String;
+    return response.first.toString();
   }
 
   @override
@@ -92,7 +92,6 @@ class ContractRepositoryImpl extends ContractRepository {
       function: contract.function('decimals'),
       params: <dynamic>[],
     );
-    print(response);
     return response.first.toString();
   }
 
@@ -107,8 +106,7 @@ class ContractRepositoryImpl extends ContractRepository {
       function: contract.function('symbol'),
       params: <dynamic>[],
     );
-    print(response);
-    return response.first as String;
+    return response.first.toString();
   }
 
   @override

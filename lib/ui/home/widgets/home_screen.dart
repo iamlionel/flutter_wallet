@@ -576,7 +576,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       final whole = value ~/ divisor;
       final fraction = value % divisor;
       final fractionStr = fraction.toString().padLeft(decimals, '0');
-      return '$whole.${fractionStr.substring(0, 4)}';
+      return '$whole.${fractionStr.substring(0, 4.clamp(0, fractionStr.length))}';
     } catch (_) {
       return '0';
     }
