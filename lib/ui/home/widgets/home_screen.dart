@@ -317,76 +317,128 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   // ── Assets Tab ──────────────────────────────────────────────────────────────
   Widget _buildAssetsTab() {
-    const assets = [
-      _Asset('Ethereum', 'ETH', '0.00', '\$0.00', AppColors.primary),
-      _Asset('Bitcoin', 'BTC', '0.15', '\$9,450.00', Color(0xFFF7931A)),
-      _Asset('Solana', 'SOL', '24.5', '\$3,000.80', Color(0xFF14F195)),
-    ];
+    final app = ref.watch(appProvider);
+    final publicKey = app.wallet.publicKey ?? '';
+    final ethBalanceAsync = ref.watch(ethBalanceProvider(publicKey));
+    final savedTokens = ref.watch(savedTokensProvider);
+
+    double ethAmount = 0.0;
+    ethBalanceAsync.whenData((balance) {
+      if (balance != null) {
+        ethAmount = balance.getValueInUnit(EtherUnit.ether).toDouble();
+      }
+    });
 
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-      itemCount: assets.length,
+      itemCount: 1 + savedTokens.length,
       itemBuilder: (context, index) {
-        final a = assets[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.04),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        if (index == 0) {
+          return _buildAssetTile(
+            name: 'Ethereum',
+            symbol: 'ETH',
+            amount: ethAmount.toStringAsFixed(4),
+            color: AppColors.primary,
+            isLoading: ethBalanceAsync.isLoading,
+          );
+        }
+        final token = savedTokens[index - 1];
+        final balanceAsync = ref.watch(
+          tokenBalanceProvider((token: token, publicKey: publicKey)),
+        );
+        return balanceAsync.when(
+          data: (t) => _buildAssetTile(
+            name: t.symbol,
+            symbol: t.symbol,
+            amount: _formatTokenBalance(t.balance, t.decimal),
+            color: const Color(0xFF6C7BFF),
           ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 6,
-            ),
-            leading: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: a.color.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.token_rounded, color: a.color, size: 24),
-            ),
-            title: Text(
-              a.name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
-            ),
-            subtitle: Text(
-              '${a.amount} ${a.symbol}',
-              style: const TextStyle(color: Colors.white38, fontSize: 12),
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  a.value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                const Text(
-                  '+2.5%',
-                  style: TextStyle(
-                    color: AppColors.success,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+          loading: () => _buildAssetTile(
+            name: token.symbol,
+            symbol: token.symbol,
+            amount: '...',
+            color: const Color(0xFF6C7BFF),
+            isLoading: true,
+          ),
+          error: (_, __) => _buildAssetTile(
+            name: token.symbol,
+            symbol: token.symbol,
+            amount: 'Error',
+            color: const Color(0xFF6C7BFF),
           ),
         );
       },
     );
+  }
+
+  Widget _buildAssetTile({
+    required String name,
+    required String symbol,
+    required String amount,
+    required Color color,
+    bool isLoading = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        leading: Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(Icons.token_rounded, color: color, size: 24),
+        ),
+        title: Text(
+          name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+        ),
+        subtitle: Text(
+          symbol,
+          style: const TextStyle(color: Colors.white38, fontSize: 12),
+        ),
+        trailing: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(
+                amount,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+      ),
+    );
+  }
+
+  String _formatTokenBalance(String rawBalance, String decimal) {
+    if (rawBalance.isEmpty || rawBalance == '0') return '0';
+    try {
+      final decimals = int.parse(decimal);
+      final value = BigInt.parse(rawBalance);
+      final divisor = BigInt.from(10).pow(decimals);
+      final whole = value ~/ divisor;
+      final fraction = value % divisor;
+      final fractionStr = fraction.toString().padLeft(decimals, '0');
+      return '$whole.${fractionStr.substring(0, 4.clamp(0, fractionStr.length))}';
+    } catch (_) {
+      return rawBalance;
+    }
   }
 
   // ── Activity Tab ────────────────────────────────────────────────────────────
@@ -449,14 +501,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       builder: (_) => const SwapBottomSheet(),
     );
   }
-}
-
-// ── Data model ────────────────────────────────────────────────────────────────
-class _Asset {
-  const _Asset(this.name, this.symbol, this.amount, this.value, this.color);
-  final String name;
-  final String symbol;
-  final String amount;
-  final String value;
-  final Color color;
 }
