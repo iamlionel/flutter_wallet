@@ -48,7 +48,7 @@ class SolChainAdapter implements ChainAdapter {
         uri,
         headers: {'Content-Type': 'application/json'},
         body: body,
-      );
+      ).timeout(const Duration(seconds: 10));
       if (response.statusCode != 200) return 0.0;
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       final result = json['result'] as Map<String, dynamic>;

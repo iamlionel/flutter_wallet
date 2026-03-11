@@ -45,7 +45,7 @@ class BtcChainAdapter implements ChainAdapter {
   Future<double> getNativeBalance(String address) async {
     try {
       final uri = Uri.parse('https://mempool.space/api/address/$address');
-      final response = await http.get(uri);
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode != 200) return 0.0;
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       final chainStats = json['chain_stats'] as Map<String, dynamic>;
