@@ -31,9 +31,7 @@ class SolChainAdapter implements ChainAdapter {
       seedBytes,
     );
     final signingKey = SigningKey.fromSeed(Uint8List.fromList(keyData.key));
-    return base58.encode(
-      Uint8List.fromList(signingKey.verifyKey.asTypedList),
-    );
+    return base58.encode(signingKey.verifyKey.asTypedList);
   }
 
   @override
