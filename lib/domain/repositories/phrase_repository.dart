@@ -9,6 +9,10 @@ abstract class PhraseRepository {
 
   Future<EthereumAddress> generatePublicKey(String privateKeyHex);
 
+  /// Derive ETH, BTC, and SOL addresses from mnemonic seed.
+  /// Returns a WalletModel with all addresses populated.
+  Future<WalletModel> deriveAllAddresses(String mnemonics);
+
   Future<void> saveData(WalletModel data, String password);
 
   Future<WalletModel?> retrieveData(String password);

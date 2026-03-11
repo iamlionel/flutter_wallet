@@ -1,9 +1,15 @@
 import 'dart:convert';
 
+import 'package:bech32/bech32.dart';
+import 'package:bip32/bip32.dart' as bip32;
+import 'package:bs58/bs58.dart';
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:ed25519_hd_key/ed25519_hd_key.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hex/hex.dart';
+import 'package:pinenacl/ed25519.dart';
+import 'package:pointycastle/digests/ripemd160.dart';
 import 'package:web3dart/web3dart.dart';
 
 import '../../domain/models/wallet_model.dart';
@@ -38,16 +44,77 @@ class PhraseRepositoryImpl extends PhraseRepository {
   @override
   Future<String> generatePrivatekey(String mnemonics) async {
     final seedBytes = bip39.mnemonicToSeed(mnemonics);
-    final masterKey = await ED25519_HD_KEY.getMasterKeyFromSeed(seedBytes);
-    final privateKey = HEX.encode(masterKey.key);
-    return privateKey;
+    final root = bip32.BIP32.fromSeed(seedBytes);
+    final child = root.derivePath("m/44'/60'/0'/0/0");
+    return HEX.encode(child.privateKey!);
   }
 
   @override
   Future<EthereumAddress> generatePublicKey(String privateKeyHex) async {
     final privateKey = EthPrivateKey.fromHex(privateKeyHex);
-    final publicAddress = await privateKey.extractAddress();
+    final publicAddress = privateKey.address;
     return publicAddress;
+  }
+
+  @override
+  Future<WalletModel> deriveAllAddresses(String mnemonics) async {
+    final seedBytes = bip39.mnemonicToSeed(mnemonics);
+
+    // ── ETH (secp256k1, m/44'/60'/0'/0/0) ───────────────────────────────────
+    final root = bip32.BIP32.fromSeed(seedBytes);
+    final ethChild = root.derivePath("m/44'/60'/0'/0/0");
+    final ethPrivKey = HEX.encode(ethChild.privateKey!);
+    final ethCredentials = EthPrivateKey.fromHex(ethPrivKey);
+    final ethAddress = ethCredentials.address.hex;
+
+    // ── BTC (secp256k1, m/84'/0'/0'/0/0, P2WPKH bech32) ─────────────────────
+    final btcChild = root.derivePath("m/84'/0'/0'/0/0");
+    final btcPubKey = btcChild.publicKey; // compressed 33 bytes
+    final sha256Hash = crypto.sha256.convert(btcPubKey).bytes;
+    final ripemd = RIPEMD160Digest()
+        .process(Uint8List.fromList(sha256Hash));
+    final converted = _convertBits(ripemd, 8, 5, pad: true);
+    final bech32Data = Bech32('bc', [0, ...converted]);
+    final btcAddress = const Bech32Codec().encode(bech32Data);
+
+    // ── SOL (ed25519, m/44'/501'/0'/0') ──────────────────────────────────────
+    final solDerived = await ED25519_HD_KEY.derivePath(
+      "m/44'/501'/0'/0'",
+      seedBytes,
+    );
+    final signingKey = SigningKey.fromSeed(Uint8List.fromList(solDerived.key));
+    final solAddress = base58.encode(
+      Uint8List.fromList(signingKey.verifyKey.asTypedList),
+    );
+
+    return WalletModel(
+      privateKey: ethPrivKey,
+      publicKey: ethAddress,
+      addresses: {
+        'eth': ethAddress,
+        'btc': btcAddress,
+        'sol': solAddress,
+      },
+    );
+  }
+
+  List<int> _convertBits(List<int> data, int from, int to, {required bool pad}) {
+    var acc = 0;
+    var bits = 0;
+    final result = <int>[];
+    final maxv = (1 << to) - 1;
+    for (final value in data) {
+      acc = ((acc << from) | value) & 0xFFFF;
+      bits += from;
+      while (bits >= to) {
+        bits -= to;
+        result.add((acc >> bits) & maxv);
+      }
+    }
+    if (pad && bits > 0) {
+      result.add((acc << (to - bits)) & maxv);
+    }
+    return result;
   }
 
   @override
