@@ -11,12 +11,6 @@ import 'contract_provider.dart';
 const _tokensKey = 'saved_tokens';
 const _storage = FlutterSecureStorage();
 
-// ── ETH USD Price ───────────────────────────────────────────────────────────
-final ethUsdPriceProvider = FutureProvider<double>((ref) async {
-  final repo = await ref.watch(contractRepositoryProvider.future);
-  return repo.getEthUsdPrice();
-});
-
 // ── Saved Token List ────────────────────────────────────────────────────────
 final savedTokensProvider =
     StateNotifierProvider<SavedTokensNotifier, List<TokenAssetModel>>(
@@ -62,7 +56,7 @@ class SavedTokensNotifier extends StateNotifier<List<TokenAssetModel>> {
 final tokenBalanceProvider =
     FutureProvider.family<TokenAssetModel, ({TokenAssetModel token, String publicKey})>(
   (ref, args) async {
-    final repo = await ref.watch(contractRepositoryProvider.future);
+    final repo = await ref.read(contractRepositoryProvider.future);
     final balance = await repo.getTokenBalance(
       args.token.contractAddress,
       args.publicKey,
@@ -76,7 +70,7 @@ final transactionsProvider =
     FutureProvider.family<List<TransactionModel>, String>(
   (ref, address) async {
     if (address.isEmpty) return [];
-    final repo = await ref.watch(contractRepositoryProvider.future);
+    final repo = await ref.read(contractRepositoryProvider.future);
     final results = await Future.wait([
       repo.getEthTransactions(address),
       repo.getErc20Transactions(address),
