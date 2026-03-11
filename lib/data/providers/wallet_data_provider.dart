@@ -82,7 +82,11 @@ final transactionsProvider =
       repo.getErc20Transactions(address),
     ]);
     final all = [...results[0], ...results[1]];
-    all.sort((a, b) => int.parse(b.timeStamp).compareTo(int.parse(a.timeStamp)));
+    all.sort((a, b) {
+      final bTs = int.tryParse(b.timeStamp) ?? 0;
+      final aTs = int.tryParse(a.timeStamp) ?? 0;
+      return bTs.compareTo(aTs);
+    });
     return all.take(20).toList();
   },
 );
