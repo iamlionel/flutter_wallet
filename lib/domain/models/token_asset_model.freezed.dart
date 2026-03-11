@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TokenAssetModel {
 
- String get contractAddress; String get symbol; String get decimal; String get balance;
+ String get chain; String get contractAddress; String get symbol; String get decimal; String get balance; bool get isNative;
 /// Create a copy of TokenAssetModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TokenAssetModelCopyWith<TokenAssetModel> get copyWith => _$TokenAssetModelCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TokenAssetModel&&(identical(other.contractAddress, contractAddress) || other.contractAddress == contractAddress)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimal, decimal) || other.decimal == decimal)&&(identical(other.balance, balance) || other.balance == balance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TokenAssetModel&&(identical(other.chain, chain) || other.chain == chain)&&(identical(other.contractAddress, contractAddress) || other.contractAddress == contractAddress)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimal, decimal) || other.decimal == decimal)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.isNative, isNative) || other.isNative == isNative));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractAddress,symbol,decimal,balance);
+int get hashCode => Object.hash(runtimeType,chain,contractAddress,symbol,decimal,balance,isNative);
 
 @override
 String toString() {
-  return 'TokenAssetModel(contractAddress: $contractAddress, symbol: $symbol, decimal: $decimal, balance: $balance)';
+  return 'TokenAssetModel(chain: $chain, contractAddress: $contractAddress, symbol: $symbol, decimal: $decimal, balance: $balance, isNative: $isNative)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TokenAssetModelCopyWith<$Res>  {
   factory $TokenAssetModelCopyWith(TokenAssetModel value, $Res Function(TokenAssetModel) _then) = _$TokenAssetModelCopyWithImpl;
 @useResult
 $Res call({
- String contractAddress, String symbol, String decimal, String balance
+ String chain, String contractAddress, String symbol, String decimal, String balance, bool isNative
 });
 
 
@@ -65,13 +65,15 @@ class _$TokenAssetModelCopyWithImpl<$Res>
 
 /// Create a copy of TokenAssetModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? contractAddress = null,Object? symbol = null,Object? decimal = null,Object? balance = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? chain = null,Object? contractAddress = null,Object? symbol = null,Object? decimal = null,Object? balance = null,Object? isNative = null,}) {
   return _then(_self.copyWith(
-contractAddress: null == contractAddress ? _self.contractAddress : contractAddress // ignore: cast_nullable_to_non_nullable
+chain: null == chain ? _self.chain : chain // ignore: cast_nullable_to_non_nullable
+as String,contractAddress: null == contractAddress ? _self.contractAddress : contractAddress // ignore: cast_nullable_to_non_nullable
 as String,symbol: null == symbol ? _self.symbol : symbol // ignore: cast_nullable_to_non_nullable
 as String,decimal: null == decimal ? _self.decimal : decimal // ignore: cast_nullable_to_non_nullable
 as String,balance: null == balance ? _self.balance : balance // ignore: cast_nullable_to_non_nullable
-as String,
+as String,isNative: null == isNative ? _self.isNative : isNative // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -156,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String contractAddress,  String symbol,  String decimal,  String balance)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String chain,  String contractAddress,  String symbol,  String decimal,  String balance,  bool isNative)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TokenAssetModel() when $default != null:
-return $default(_that.contractAddress,_that.symbol,_that.decimal,_that.balance);case _:
+return $default(_that.chain,_that.contractAddress,_that.symbol,_that.decimal,_that.balance,_that.isNative);case _:
   return orElse();
 
 }
@@ -177,10 +179,10 @@ return $default(_that.contractAddress,_that.symbol,_that.decimal,_that.balance);
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String contractAddress,  String symbol,  String decimal,  String balance)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String chain,  String contractAddress,  String symbol,  String decimal,  String balance,  bool isNative)  $default,) {final _that = this;
 switch (_that) {
 case _TokenAssetModel():
-return $default(_that.contractAddress,_that.symbol,_that.decimal,_that.balance);case _:
+return $default(_that.chain,_that.contractAddress,_that.symbol,_that.decimal,_that.balance,_that.isNative);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +199,10 @@ return $default(_that.contractAddress,_that.symbol,_that.decimal,_that.balance);
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String contractAddress,  String symbol,  String decimal,  String balance)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String chain,  String contractAddress,  String symbol,  String decimal,  String balance,  bool isNative)?  $default,) {final _that = this;
 switch (_that) {
 case _TokenAssetModel() when $default != null:
-return $default(_that.contractAddress,_that.symbol,_that.decimal,_that.balance);case _:
+return $default(_that.chain,_that.contractAddress,_that.symbol,_that.decimal,_that.balance,_that.isNative);case _:
   return null;
 
 }
@@ -212,13 +214,15 @@ return $default(_that.contractAddress,_that.symbol,_that.decimal,_that.balance);
 @JsonSerializable()
 
 class _TokenAssetModel implements TokenAssetModel {
-  const _TokenAssetModel({required this.contractAddress, required this.symbol, required this.decimal, this.balance = '0'});
+  const _TokenAssetModel({this.chain = 'eth', required this.contractAddress, required this.symbol, required this.decimal, this.balance = '0', this.isNative = false});
   factory _TokenAssetModel.fromJson(Map<String, dynamic> json) => _$TokenAssetModelFromJson(json);
 
+@override@JsonKey() final  String chain;
 @override final  String contractAddress;
 @override final  String symbol;
 @override final  String decimal;
 @override@JsonKey() final  String balance;
+@override@JsonKey() final  bool isNative;
 
 /// Create a copy of TokenAssetModel
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +237,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TokenAssetModel&&(identical(other.contractAddress, contractAddress) || other.contractAddress == contractAddress)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimal, decimal) || other.decimal == decimal)&&(identical(other.balance, balance) || other.balance == balance));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TokenAssetModel&&(identical(other.chain, chain) || other.chain == chain)&&(identical(other.contractAddress, contractAddress) || other.contractAddress == contractAddress)&&(identical(other.symbol, symbol) || other.symbol == symbol)&&(identical(other.decimal, decimal) || other.decimal == decimal)&&(identical(other.balance, balance) || other.balance == balance)&&(identical(other.isNative, isNative) || other.isNative == isNative));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,contractAddress,symbol,decimal,balance);
+int get hashCode => Object.hash(runtimeType,chain,contractAddress,symbol,decimal,balance,isNative);
 
 @override
 String toString() {
-  return 'TokenAssetModel(contractAddress: $contractAddress, symbol: $symbol, decimal: $decimal, balance: $balance)';
+  return 'TokenAssetModel(chain: $chain, contractAddress: $contractAddress, symbol: $symbol, decimal: $decimal, balance: $balance, isNative: $isNative)';
 }
 
 
@@ -253,7 +257,7 @@ abstract mixin class _$TokenAssetModelCopyWith<$Res> implements $TokenAssetModel
   factory _$TokenAssetModelCopyWith(_TokenAssetModel value, $Res Function(_TokenAssetModel) _then) = __$TokenAssetModelCopyWithImpl;
 @override @useResult
 $Res call({
- String contractAddress, String symbol, String decimal, String balance
+ String chain, String contractAddress, String symbol, String decimal, String balance, bool isNative
 });
 
 
@@ -270,13 +274,15 @@ class __$TokenAssetModelCopyWithImpl<$Res>
 
 /// Create a copy of TokenAssetModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? contractAddress = null,Object? symbol = null,Object? decimal = null,Object? balance = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? chain = null,Object? contractAddress = null,Object? symbol = null,Object? decimal = null,Object? balance = null,Object? isNative = null,}) {
   return _then(_TokenAssetModel(
-contractAddress: null == contractAddress ? _self.contractAddress : contractAddress // ignore: cast_nullable_to_non_nullable
+chain: null == chain ? _self.chain : chain // ignore: cast_nullable_to_non_nullable
+as String,contractAddress: null == contractAddress ? _self.contractAddress : contractAddress // ignore: cast_nullable_to_non_nullable
 as String,symbol: null == symbol ? _self.symbol : symbol // ignore: cast_nullable_to_non_nullable
 as String,decimal: null == decimal ? _self.decimal : decimal // ignore: cast_nullable_to_non_nullable
 as String,balance: null == balance ? _self.balance : balance // ignore: cast_nullable_to_non_nullable
-as String,
+as String,isNative: null == isNative ? _self.isNative : isNative // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
