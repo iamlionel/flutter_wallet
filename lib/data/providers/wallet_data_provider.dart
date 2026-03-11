@@ -28,12 +28,17 @@ class SavedTokensNotifier extends StateNotifier<List<TokenAssetModel>> {
   }
 
   Future<void> _load() async {
-    final raw = await _storage.read(key: _tokensKey);
-    if (raw == null) return;
-    final list = jsonDecode(raw) as List<dynamic>;
-    state = list
-        .map((e) => TokenAssetModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+    try {
+      final raw = await _storage.read(key: _tokensKey);
+      if (raw == null) return;
+      final list = jsonDecode(raw) as List<dynamic>;
+      state = list
+          .map((e) => TokenAssetModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      // Corrupted storage — start fresh
+      state = [];
+    }
   }
 
   Future<void> addToken(TokenAssetModel token) async {
