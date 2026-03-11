@@ -57,7 +57,7 @@ final nativeBalanceProvider = FutureProvider.family<
 // ── Total USD Balance (all chains) ──────────────────────────────────────────
 final totalUsdBalanceProvider = FutureProvider<double>((ref) async {
   try {
-    final wallet = ref.watch(appProvider).wallet;
+    final wallet = ref.read(appProvider).wallet;
     final prices = await ref.read(chainPricesProvider.future);
 
     final futures = ChainId.values.map((chainId) async {
