@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:web3dart/web3dart.dart';
 
 import '../../../data/providers/app_provider.dart';
 import '../../../data/providers/contract_provider.dart';
 import '../../../data/providers/wallet_data_provider.dart';
-import 'package:web3dart/web3dart.dart';
 import '../../core/themes/colors.dart';
 import '../../widgets/add_token_bottom_sheet.dart';
 import '../../widgets/send_bottom_sheet.dart';
