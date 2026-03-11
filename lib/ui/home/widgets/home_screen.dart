@@ -162,7 +162,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _getShortAddress(app.wallet.publicKey),
+                  _shortHex(app.wallet.publicKey ?? '', head: 6, tail: 4),
                   style: const TextStyle(
                     fontSize: 11,
                     color: Colors.white38,
@@ -538,7 +538,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   ),
                 ),
                 subtitle: Text(
-                  '${_shortHash(tx.hash)} · $dateStr',
+                  '${_shortHex(tx.hash)} · $dateStr',
                   style: const TextStyle(color: Colors.white38, fontSize: 11),
                 ),
                 trailing: Column(
@@ -571,23 +571,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   String _weiToEth(String wei) {
     try {
       final value = BigInt.parse(wei);
-      final eth = value / BigInt.from(10).pow(18);
-      return eth.toStringAsFixed(4);
+      const decimals = 18;
+      final divisor = BigInt.from(10).pow(decimals);
+      final whole = value ~/ divisor;
+      final fraction = value % divisor;
+      final fractionStr = fraction.toString().padLeft(decimals, '0');
+      return '$whole.${fractionStr.substring(0, 4)}';
     } catch (_) {
       return '0';
     }
   }
 
-  String _shortHash(String hash) {
-    if (hash.length < 12) return hash;
-    return '${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}';
-  }
-
   // ── Helpers ─────────────────────────────────────────────────────────────────
-  String _getShortAddress(String? addr) {
-    if (addr == null || addr.isEmpty) return '0x...';
-    if (addr.length < 10) return addr;
-    return '${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}';
+  String _shortHex(String hex, {int head = 6, int tail = 4}) {
+    if (hex.length < head + tail + 1) return hex;
+    return '${hex.substring(0, head)}...${hex.substring(hex.length - tail)}';
   }
 
   void _showAddTokenBottomSheet(BuildContext context) {
