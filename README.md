@@ -1,4 +1,4 @@
-# 🪙 Flutter Wallet
+# 🪙 Zen Wallet
 
 一个基于 Flutter 构建的多链加密货币钱包应用，支持以太坊（EVM）与 Solana 链，具备助记词生成、钱包导入、Token 资产管理、二维码收发等核心功能。
 

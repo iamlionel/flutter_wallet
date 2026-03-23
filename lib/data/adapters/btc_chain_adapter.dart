@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:pointycastle/digests/ripemd160.dart';
 
+import '../../app/env_config.dart';
 import '../../domain/models/chain_id.dart';
 import '../../domain/models/transaction_model.dart';
 import '../../domain/repositories/chain_adapter.dart';
@@ -44,7 +45,8 @@ class BtcChainAdapter implements ChainAdapter {
   @override
   Future<double> getNativeBalance(String address) async {
     try {
-      final uri = Uri.parse('https://mempool.space/api/address/$address');
+      final baseUrl = EnvConfig.btcUrl;
+      final uri = Uri.parse('$baseUrl/address/$address');
       final response = await http.get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode != 200) return 0.0;
       final json = jsonDecode(response.body) as Map<String, dynamic>;

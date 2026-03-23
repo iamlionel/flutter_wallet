@@ -5,4 +5,6 @@ class EnvConfig {
       dotenv.env['BASE_URL'] ?? 'https://default.api.com';
   static String get solanaUrl =>
       dotenv.env['SOLANA_URL'] ?? 'https://api.mainnet-beta.solana.com';
+  static String get btcUrl =>
+      dotenv.env['BTC_URL'] ?? 'https://mempool.space/api';
 }
