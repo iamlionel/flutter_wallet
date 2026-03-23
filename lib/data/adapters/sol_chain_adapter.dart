@@ -6,6 +6,7 @@ import 'package:ed25519_hd_key/ed25519_hd_key.dart';
 import 'package:http/http.dart' as http;
 import 'package:pinenacl/ed25519.dart';
 
+import '../../app/env_config.dart';
 import '../../domain/models/chain_id.dart';
 import '../../domain/models/transaction_model.dart';
 import '../../domain/repositories/chain_adapter.dart';
@@ -37,7 +38,7 @@ class SolChainAdapter implements ChainAdapter {
   @override
   Future<double> getNativeBalance(String address) async {
     try {
-      final uri = Uri.parse('https://api.mainnet-beta.solana.com');
+      final uri = Uri.parse(EnvConfig.solanaUrl);
       final body = jsonEncode({
         'jsonrpc': '2.0',
         'id': 1,
